@@ -1,0 +1,18 @@
+Package: tRexCAP
+Type: Package
+Title: tRexCAP carries out 3D whole genome chromosome structure
+        estimation using HiC data
+Version: 1.0
+Date: 2016-05-31
+Author: Jincheol Park (Keimyung University, South Korea), Shili Lin (The Ohio State University, USA.
+Maintainer: Jincheol Park <park.jincheol@gmail.com>
+Description: tRex estimates 3D chromosome structure using three Poisson models under Bayesian framework. Truncated Random effect EXpression (tREX) mode, Poisson Random Effects Architecture Model(PRAM), Truncated Poisson Architecture Model(tPAM). A package that uses a divide and conquer strategy and the tREX algorithm as the building block for constructing whole genome three-dimensional structures.
+Depends: R (>= 3.1.0)
+Imports: coda,MCMCglmm,Rcpp (>= 0.12.0),RcppArmadillo,MASS
+Suggests: doParallel, doMC
+LinkingTo: Rcpp, RcppArmadillo
+SystemRequirements: GNU Scientific Library version >= 1.8
+License: GPL-2
+Encoding: UTF-8
+NeedsCompilation: yes
+Packaged: 2026-01-06 03:22:07 UTC; webb.944

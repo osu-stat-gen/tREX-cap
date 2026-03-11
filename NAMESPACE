@@ -1,0 +1,7 @@
+exportPattern("^[[:alpha:]]+")
+useDynLib(tRexCAP, .registration = TRUE)
+
+import(coda,MCMCglmm,Rcpp,RcppArmadillo,MASS)
+importFrom(Rcpp, sourceCpp)
+
+

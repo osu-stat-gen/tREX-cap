@@ -1,0 +1,9 @@
+
+# Include directories for R and other libraries
+PKG_CPPFLAGS = -I"C:/PROGRA~1/R/R-4.4.1/include" -I"C:/local300/include" -I../inst/include
+
+# Compiler flags with OpenMP enabled
+PKG_CXXFLAGS = -std=c++11 -fopenmp
+
+# Link libraries: GSL, OpenMP, LAPACK/BLAS, and R
+PKG_LIBS = -L"C:/PROGRA~1/R/R-4.4.1/bin/x64" -lR -lgfortran -lm -lquadmath -L"C:/local300/lib" -lgsl -lgslcblas -fopenmp -lstdc++
