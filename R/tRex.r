@@ -280,7 +280,12 @@ function(contact,bias=NULL,mcmc=10000,burn=10000,jump.beta1,jump.x=0.1,jump.u=0.
 
 
 
-
+#' @title get posterior samples of coordinates of a specific locus.
+#' @param psample An output of tRex().
+#' @param i The locus to get coordinates. 
+#' @return A Matrix of 10000 rows. 1st, 2nd, and 3rd colums corresponds to x,y, and z coordinates. Each rows corresponds to a posterior sample  of coordinates.
+#' @export
+#' 
 get.sample=function(psample,i){
 	where=c(3*(i-1)+1,3*(i-1)+2,3*i)
 	S=psample[[1]]
@@ -289,11 +294,22 @@ get.sample=function(psample,i){
 	Si
 }
 
+#' @title get posterior samples of parameters.
+#' @param psample An output of tRex().
+#' @return A matrix of 10000 rows and 5 columns of \beta_1, cov_1, cov_2, \sigma_x, and \sigma_u.
+#' @export
+#' 
 get.param=function(psample){
 	Param=psample[[2]]
 }	
 	
-
+#' @title Summarizing posterior samples of loci coordinates.
+#' @description Posterior coordinates can be summarized using either posterior mode or posterior mean.
+#' @param psample An output of tRex().
+#' @param method which method to summarize the coordinates. One of "Mode", "Mean", or "MAP".
+#' @return A matrix of three columns and n rows, where n is the number of loci.
+#' @export
+#' 
 summarize.struct=function(psample,method=c("Mode","Mean","MAP")){
 	which=match.arg(method)
 	S=psample[[1]]
@@ -333,6 +349,11 @@ summarize.struct=function(psample,method=c("Mode","Mean","MAP")){
 	)
 }
 
+#' @title Draw 3D structure
+#' @description Using a rgl package, this function provides a visualization function of the 3D structure
+#' @param coordinates A matrix of three coloumns correspoding to three coordinates.
+#' @return The figure.
+#' @export
 draw.struct=function(coordinates){
 	x=coordinates[,1]
 	y=coordinates[,2]
@@ -350,8 +371,6 @@ draw.struct=function(coordinates){
 		segments3d(df$x[i:(i+1)],df$y[i:(i+1)],df$z[i:(i+1)],col="brown",lwd=3)
 	}
 }
-
-
 
 
 mctrex <- function(k, bias = NULL, contact, cutlist, save_mcmc = FALSE) {
@@ -424,7 +443,6 @@ mat_dist <- function(x, y) {
 #   y <- sum(log(ddd) * ddd^beta * exp(llambdax)) - sum(y12 * log(ddd))
 #   return(y)
 # }
-
 
 # input a vector of break points and the dimension of the contact matrix
 # output a list of the start and end breakpoints 
