@@ -2,6 +2,7 @@
 // Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #include <RcppArmadillo.h>
+#include <RcppGSL.h>
 #include <Rcpp.h>
 
 using namespace Rcpp;
@@ -78,6 +79,23 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type y12(y12SEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type ddd(dddSEXP);
     rcpp_result_gen = Rcpp::wrap(beta_func(beta, llambdax, y12, ddd));
+    return rcpp_result_gen;
+END_RCPP
+}
+// r_zeroin2
+arma::vec r_zeroin2(double a, double b, const arma::mat& llambdax, const arma::mat& y12, const arma::mat& ddd, double tol, int Maxit);
+RcppExport SEXP _tRexCAP_r_zeroin2(SEXP aSEXP, SEXP bSEXP, SEXP llambdaxSEXP, SEXP y12SEXP, SEXP dddSEXP, SEXP tolSEXP, SEXP MaxitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< double >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type llambdax(llambdaxSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type y12(y12SEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type ddd(dddSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< int >::type Maxit(MaxitSEXP);
+    rcpp_result_gen = Rcpp::wrap(r_zeroin2(a, b, llambdax, y12, ddd, tol, Maxit));
     return rcpp_result_gen;
 END_RCPP
 }

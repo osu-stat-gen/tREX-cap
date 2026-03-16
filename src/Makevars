@@ -1,7 +1,4 @@
-PKG_CXXFLAGS = -std=c++11 -fopenmp
-
-#PKG_LIBS=$(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
-#PKG_LIBS= -lgsl -lgslcblas
-
-PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"`-lgsl -lgslcblas -fopenmp $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
-
+CXX_STD = CXX11
+PKG_CXXFLAGS = -I/usr/include $(SHLIB_OPENMP_CXXFLAGS)
+PKG_CFLAGS = -I/usr/include
+PKG_LIBS = -lgsl -lgslcblas -lm $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)

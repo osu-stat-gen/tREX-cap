@@ -22,9 +22,10 @@ using uint = unsigned int;
 // https://chryswoods.com/vector_c++/features.html  SIMD for dummies
 
 
+
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::plugins(openmp)]]
-
+//' @export
 // [[Rcpp::export]]
 arma::vec rcpp_gen_angle(){
     double x1, x2, x3;
@@ -159,6 +160,7 @@ double beta_func(double beta, const arma::mat& llambdax, const arma::mat& y12, c
 ///////////////////////////////////
 //source code:
 //https://svn.r-project.org/R/trunk/src/library/stats/src/zeroin.c
+// [[Rcpp::export]]
 arma::vec r_zeroin2(double a, double b, const arma::mat& llambdax, const arma::mat& y12, const arma::mat& ddd,
                     double tol=0.000001, int Maxit=1000) {
   double c=a;
@@ -239,7 +241,7 @@ arma::vec r_zeroin2(double a, double b, const arma::mat& llambdax, const arma::m
 }
 
 // this augments the brent method with a grid search+newton if the endpoints are not of opposite sign
-// [[Rcpp::export]]
+// // [[Rcpp::export]]
 // arma::vec r_zeroin2(double a, double b,
 //                     const arma::mat& llambdax,
 //                     const arma::mat& y12,

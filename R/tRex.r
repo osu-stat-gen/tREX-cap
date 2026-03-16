@@ -296,7 +296,7 @@ get.sample=function(psample,i){
 
 #' @title get posterior samples of parameters.
 #' @param psample An output of tRex().
-#' @return A matrix of 10000 rows and 5 columns of \beta_1, cov_1, cov_2, \sigma_x, and \sigma_u.
+#' @return A matrix of 10000 rows and 5 columns of \eqn{\beta_1}, \eqn{cov_1}, \eqn{cov_2}, \eqn{\sigma_x}, and \eqn{\sigma_u}
 #' @export
 #' 
 get.param=function(psample){
@@ -447,6 +447,7 @@ mat_dist <- function(x, y) {
 # input a vector of break points and the dimension of the contact matrix
 # output a list of the start and end breakpoints 
 
+
 get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
   numloci = n
   
@@ -489,16 +490,27 @@ get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
 }
 
 
+#' @title Run the cut part of cut and paste
+#'
+#' @param contact placeholder
+#' @param bias placeholder
+#' @param breaks placeholder
+#' @param block_size placeholder
+#' @param noverlap placeholder
+#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
+#' @param save_mcmc Whether to save the MCMC result. Default is FALSE.
+#' @return A list...
+#' @export
+#' 
 # Run the cut part of cut and paste
-Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap = 1, CPU, save_mcmc = FALSE){
+Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap = 1, CPU = 1, save_mcmc = FALSE){
   n = ncol(contact)
   cutlist = get.breakpoints(breaks=breaks, n=n, block_size=block_size, noverlap=noverlap)
   nblock = length(cutlist)
   
-  
   # Check if the operating system is Windows
-  if (.Platform$OS.type == "windows") {
-    # Load doParallel for Windows
+  # if (.Platform$OS.type == "windows") {
+  #   # Load doParallel for Windows
     if (requireNamespace("doParallel", quietly = TRUE)) {
       library(doParallel)
       cl <- makeCluster(CPU)
@@ -507,15 +519,14 @@ Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap =
     } else {
       warning("doParallel is required for parallel processing on Windows, but it is not installed.")
     }
-  } else {
-    # Load doMC for Unix-like systems (Linux, macOS)
-    if (requireNamespace("doMC", quietly = TRUE)) {
-      library(doMC)
-      registerDoMC(cores = CPU)
-    } else {
-      warning("doMC is required for parallel processing on Unix-like systems, but it is not installed.")
-    }
-  }
+  # } else {
+  #   # Load doMC for Unix-like systems (Linux, macOS)
+  #   if (requireNamespace("doMC", quietly = TRUE)) {
+  #     doMC::registerDoMC(cores = CPU)
+  #   } else {
+  #     warning("doMC is required for parallel processing on Unix-like systems, but it is not installed.")
+  #   }
+  # }
   
   
   result <- foreach(k = 1:nblock) %dopar% {
@@ -525,8 +536,16 @@ Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap =
   return(list(cutlist, result, noverlap))  # double check
 }
 
-# run the paste part of cut and paste
-Paste_orig <- function(contact, cutresult, CPU){
+
+#' @title Run the paste part of cut and paste
+#'
+#' @param contact placeholder
+#' @param cutresult placeholder
+#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
+#' @return A list...
+#' @export
+#' 
+Paste_orig <- function(contact, cutresult, CPU = 1){
   cutlist <- cutresult[[1]] # these are the breakpoints
   result <- cutresult[[2]] # these are the cuts
   noverlap <- cutresult[[3]] # this is noverlap used for the cuts
@@ -641,7 +660,15 @@ Paste_orig <- function(contact, cutresult, CPU){
   return(list(FS12, likelihood))
 }
 
-Paste <- function(contact, cutresult, CPU){
+#' @title Run the paste part of cut and paste
+#'
+#' @param contact placeholder
+#' @param cutresult placeholder
+#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
+#' @return A list...
+#' @export
+#' 
+Paste <- function(contact, cutresult, block_size, CPU = 1){
     cutlist <- cutresult[[1]] # these are the breakpoints
     result <- cutresult[[2]] # these are the cuts
     noverlap <- cutresult[[3]] # this is noverlap used for the cuts
@@ -849,8 +876,15 @@ Paste <- function(contact, cutresult, CPU){
 }
 
 
-
-# run both cut and paste
+#' @title Run both cut and paste
+#'
+#' @param contact placeholder
+#' @param cutresult placeholder
+#' @param CPU placeholder
+#' @param save_mcmc placeholder
+#' @return A list...
+#' @export
+#' 
 CutAndPaste <- function(contact, breaks = NULL, block_size = 40, noverlap = 1, CPU){
   
   cuts = Cut(contact=contact, breaks = breaks, block_size = block_size, noverlap = noverlap, CPU=CPU)

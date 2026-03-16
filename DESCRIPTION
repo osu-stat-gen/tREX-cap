@@ -1,18 +1,35 @@
 Package: tRexCAP
-Type: Package
-Title: tRexCAP carries out 3D whole genome chromosome structure
-        estimation using HiC data
-Version: 1.0
-Date: 2016-05-31
-Author: Jincheol Park (Keimyung University, South Korea), Shili Lin (The Ohio State University, USA.
-Maintainer: Jincheol Park <park.jincheol@gmail.com>
+Title: tRexCAP Carries Out 3D Whole Genome Chromosomal Structure Estimationu U sing HiC Data
+Version: 1.0.0
 Description: tRex estimates 3D chromosome structure using three Poisson models under Bayesian framework. Truncated Random effect EXpression (tREX) mode, Poisson Random Effects Architecture Model(PRAM), Truncated Poisson Architecture Model(tPAM). A package that uses a divide and conquer strategy and the tREX algorithm as the building block for constructing whole genome three-dimensional structures.
-Depends: R (>= 3.1.0)
-Imports: coda,MCMCglmm,Rcpp (>= 0.12.0),RcppArmadillo,MASS
-Suggests: doParallel, doMC
-LinkingTo: Rcpp, RcppArmadillo
-SystemRequirements: GNU Scientific Library version >= 1.8
-License: GPL-2
+Authors@R: c(
+    person("Jincheol", "Park", role = "aut"),
+    person("Meng", "Wang", , "cherrywang1006@gmail.com", role = "aut"),
+    person("Emerson", "Webb", , "webb.944@buckeyemail.osu.edu", role = "aut"),
+    person("Shili", "Lin", , "shili@stat.osu.edu", role = c("aut", "cre"))
+  )
+License: GPL (>= 3)
 Encoding: UTF-8
-NeedsCompilation: yes
-Packaged: 2026-01-06 03:22:07 UTC; webb.944
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+SystemRequirements: GSL (>= 2.0)
+Imports: 
+    coda,
+    MASS,
+    MCMCglmm,
+    Rcpp,
+    RcppArmadillo,
+    RcppGSL
+Suggests: 
+    doMC,
+    doParallel,
+    knitr,
+    rmarkdown
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo,
+    RcppGSL
+Depends: 
+    R (>= 3.5)
+LazyData: true
+VignetteBuilder: knitr
