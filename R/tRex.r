@@ -464,7 +464,7 @@ get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
         end <- n
       } else {
         start <- (k - 1) * block_size - noverlap + 1
-        end <- k * block_size + noverlap
+        end <- min(k * block_size + noverlap, n)
       }
       cutlist[[k]] <- c(start, end)
     }
@@ -533,7 +533,7 @@ Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap =
     mctrex(k = k, bias = bias, contact = contact, cutlist = cutlist, save_mcmc = save_mcmc) 
   }
   
-  return(list(cutlist, result, noverlap))  # double check
+  return(list(cutlist, result, noverlap, block_size))  # double check
 }
 
 
@@ -549,6 +549,7 @@ Paste_orig <- function(contact, cutresult, CPU = 1){
   cutlist <- cutresult[[1]] # these are the breakpoints
   result <- cutresult[[2]] # these are the cuts
   noverlap <- cutresult[[3]] # this is noverlap used for the cuts
+  block_size <- cutresult[[4]] # this is block_size used for the cuts
   
   y2 <- contact 
   N <- nrow(y2)
@@ -668,10 +669,11 @@ Paste_orig <- function(contact, cutresult, CPU = 1){
 #' @return A list...
 #' @export
 #' 
-Paste <- function(contact, cutresult, block_size, CPU = 1){
+Paste <- function(contact, cutresult, CPU = 1){
     cutlist <- cutresult[[1]] # these are the breakpoints
     result <- cutresult[[2]] # these are the cuts
     noverlap <- cutresult[[3]] # this is noverlap used for the cuts
+    block_size <- cutresult[[4]] # this is block_size used for the cuts
     
     y2 <- contact 
     N <- nrow(y2)
@@ -682,7 +684,7 @@ Paste <- function(contact, cutresult, block_size, CPU = 1){
     start <- max(1, (sr - 1) * block_size - noverlap + 1)
     likelihood <- list()
     y11 <- y2[start:nrow(y2), start:nrow(y2)]
-    block1_end <- floor(N / block_size / 2) - 1
+    block1_end <- max(1, floor(N / block_size / 2) - 1)
     k <- 1
     for (k in sr:block1_end) {
       cat("k =", k, "\n")
@@ -885,10 +887,10 @@ Paste <- function(contact, cutresult, block_size, CPU = 1){
 #' @return A list...
 #' @export
 #' 
-CutAndPaste <- function(contact, breaks = NULL, block_size = 40, noverlap = 1, CPU){
+CutAndPaste <- function(contact, bias= NULL, breaks = NULL, block_size = 40, noverlap = 1, CPU){
   
-  cuts = Cut(contact=contact, breaks = breaks, block_size = block_size, noverlap = noverlap, CPU=CPU)
-  paste = Paste(contact = contact, cutresult=cuts, block_size = block_size, CPU=CPU)
+    cuts = Cut(contact=contact, bias = bias, breaks = breaks, block_size = block_size, noverlap = noverlap, CPU=CPU, save_mcmc = save_mcmc)
+  paste = Paste(contact = contact, cutresult=cuts, CPU=CPU)
   
   return(list(cuts, paste))
   
