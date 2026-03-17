@@ -4,16 +4,24 @@
 \alias{CutAndPaste}
 \title{Run both cut and paste}
 \usage{
-CutAndPaste(contact, breaks = NULL, block_size = 40, noverlap = 1, CPU)
+CutAndPaste(
+  contact,
+  bias = NULL,
+  breaks = NULL,
+  block_size = 40,
+  noverlap = 1,
+  CPU,
+  save_mcmc = FALSE
+)
 }
 \arguments{
 \item{contact}{placeholder}
 
 \item{CPU}{placeholder}
 
-\item{cutresult}{placeholder}
-
 \item{save_mcmc}{placeholder}
+
+\item{cutresult}{placeholder}
 }
 \value{
 A list...

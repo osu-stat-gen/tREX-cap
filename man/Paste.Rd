@@ -4,7 +4,7 @@
 \alias{Paste}
 \title{Run the paste part of cut and paste}
 \usage{
-Paste(contact, cutresult, block_size, CPU = 1)
+Paste(contact, cutresult, CPU = 1)
 }
 \arguments{
 \item{contact}{placeholder}

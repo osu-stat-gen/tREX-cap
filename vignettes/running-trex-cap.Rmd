@@ -1,0 +1,36 @@
+---
+title: "running-trex-cap"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{running-trex-cap}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tRexCAP)
+data(sim_hic)
+data(sim_bias)
+```
+
+# just cut
+```{r}
+CutRes = Cut(contact = sim_hic, bias = sim_bias, block_size = 12, noverlap = 1, CPU = 5)
+```
+
+# then paste
+```{r}
+PasteRes = Paste(contact = sim_hic, cutresult = CutRes, CPU = 5)
+```
+
+# or use cut and paste
+```{r}
+CAPRes = CutAndPaste(contact = sim_hic, block_size = 12, noverlap = 1, CPU = 5)
+```

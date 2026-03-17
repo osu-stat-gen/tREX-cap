@@ -887,13 +887,10 @@ Paste <- function(contact, cutresult, CPU = 1){
 #' @return A list...
 #' @export
 #' 
-CutAndPaste <- function(contact, bias= NULL, breaks = NULL, block_size = 40, noverlap = 1, CPU){
-  
-    cuts = Cut(contact=contact, bias = bias, breaks = breaks, block_size = block_size, noverlap = noverlap, CPU=CPU, save_mcmc = save_mcmc)
+CutAndPaste <- function(contact, bias= NULL, breaks = NULL, block_size = 40, noverlap = 1, CPU, save_mcmc = FALSE){
+  cuts = Cut(contact=contact, bias = bias, breaks = breaks, block_size = block_size, noverlap = noverlap, CPU=CPU, save_mcmc = save_mcmc)
   paste = Paste(contact = contact, cutresult=cuts, CPU=CPU)
-  
   return(list(cuts, paste))
-  
 }
 
 
