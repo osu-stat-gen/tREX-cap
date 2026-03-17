@@ -10,7 +10,7 @@ get.param(psample)
 \item{psample}{An output of tRex().}
 }
 \value{
-A matrix of 10000 rows and 5 columns of \beta_1, cov_1, cov_2, \sigma_x, and \sigma_u.
+A matrix of 10000 rows and 5 columns of \eqn{\beta_1}, \eqn{cov_1}, \eqn{cov_2}, \eqn{\sigma_x}, and \eqn{\sigma_u}
 }
 \description{
 get posterior samples of parameters.

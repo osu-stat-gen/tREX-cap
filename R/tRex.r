@@ -888,7 +888,7 @@ Paste <- function(contact, cutresult, block_size, CPU = 1){
 CutAndPaste <- function(contact, breaks = NULL, block_size = 40, noverlap = 1, CPU){
   
   cuts = Cut(contact=contact, breaks = breaks, block_size = block_size, noverlap = noverlap, CPU=CPU)
-  paste = Paste(contact = contact, cutresult=cuts, CPU=CPU)
+  paste = Paste(contact = contact, cutresult=cuts, block_size = block_size, CPU=CPU)
   
   return(list(cuts, paste))
   
