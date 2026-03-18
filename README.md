@@ -16,7 +16,7 @@ You can install tRex-CAP package directly from github by using your
 favorite installer (remotes/devtools/pak):
 
 ``` r
-remotes::install_github("https://github.com/osu-stat-gen/tREX-cap@dev")
+remotes::install_github("osu-stat-gen/tREX-cap@dev")
 ```
 
 ## Example
