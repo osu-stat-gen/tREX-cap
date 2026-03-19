@@ -7,14 +7,14 @@
 Paste(contact, cutresult, CPU = 1)
 }
 \arguments{
-\item{contact}{placeholder}
+\item{contact}{The contact matrix. See Cut() for detailed explanation.}
 
-\item{cutresult}{placeholder}
+\item{cutresult}{The result object from running Cut().}
 
 \item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Default to 1.}
 }
 \value{
-A list...
+A list of estimated 3D coordinates and likelihood.
 }
 \description{
 Run the paste part of cut and paste

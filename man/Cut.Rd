@@ -2,7 +2,7 @@
 % Please edit documentation in R/tRex.r
 \name{Cut}
 \alias{Cut}
-\title{Run the cut part of cut and paste}
+\title{Run Cut Algorithm}
 \usage{
 Cut(
   contact,
@@ -15,23 +15,23 @@ Cut(
 )
 }
 \arguments{
-\item{contact}{placeholder}
+\item{contact}{The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j.}
 
 \item{bias}{placeholder}
 
 \item{breaks}{placeholder}
 
-\item{block_size}{placeholder}
+\item{block_size}{The dimension of each block.}
 
-\item{noverlap}{placeholder}
+\item{noverlap}{Number of loci that overlaps between neighboring blocks.}
 
 \item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Default to 1.}
 
-\item{save_mcmc}{Whether to save the MCMC result. Default is FALSE.}
+\item{save_mcmc}{Whether to save the posterior samples generated during the MCMC step. Default to FALSE.}
 }
 \value{
-A list...
+placeholder
 }
 \description{
-Run the cut part of cut and paste
+Cut the contact matrix into parts and estimate the structure of each partition.
 }

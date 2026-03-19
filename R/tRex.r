@@ -490,16 +490,16 @@ get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
 }
 
 
-#' @title Run the cut part of cut and paste
-#'
-#' @param contact placeholder
+#' @title Run Cut Algorithm
+#' @description Cut the contact matrix into parts and estimate the structure of each partition.
+#' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j. 
 #' @param bias placeholder
 #' @param breaks placeholder
-#' @param block_size placeholder
-#' @param noverlap placeholder
+#' @param block_size The dimension of each block.
+#' @param noverlap Number of loci that overlaps between neighboring blocks.
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
-#' @param save_mcmc Whether to save the MCMC result. Default is FALSE.
-#' @return A list...
+#' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Default to FALSE.
+#' @return placeholder
 #' @export
 #' 
 # Run the cut part of cut and paste
@@ -508,6 +508,7 @@ Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap =
   cutlist = get.breakpoints(breaks=breaks, n=n, block_size=block_size, noverlap=noverlap)
   nblock = length(cutlist)
   
+  diag(contact) <- rep(0, n)
   # Check if the operating system is Windows
   # if (.Platform$OS.type == "windows") {
   #   # Load doParallel for Windows
@@ -527,7 +528,6 @@ Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap =
   #     warning("doMC is required for parallel processing on Unix-like systems, but it is not installed.")
   #   }
   # }
-  
   
   result <- foreach(k = 1:nblock) %dopar% {
     mctrex(k = k, bias = bias, contact = contact, cutlist = cutlist, save_mcmc = save_mcmc) 
@@ -663,10 +663,10 @@ Paste_orig <- function(contact, cutresult, CPU = 1){
 
 #' @title Run the paste part of cut and paste
 #'
-#' @param contact placeholder
-#' @param cutresult placeholder
+#' @param contact The contact matrix. See Cut() for detailed explanation. 
+#' @param cutresult The result object from running Cut().  
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
-#' @return A list...
+#' @return A list of estimated 3D coordinates and likelihood.
 #' @export
 #' 
 Paste <- function(contact, cutresult, CPU = 1){
@@ -873,17 +873,17 @@ Paste <- function(contact, cutresult, CPU = 1){
       likelihood[[length(likelihood) + 1]] <- apg_result$lk
     }
     
-    return(list(FS12, likelihood))
+    return(list(structure = FS12, likelihood = likelihood))
 
 }
 
 
-#' @title Run both cut and paste
+#' @title Run both cut and paste in one step
 #'
-#' @param contact placeholder
-#' @param cutresult placeholder
-#' @param CPU placeholder
-#' @param save_mcmc placeholder
+#' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j. 
+#' @param bias placeholder
+#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
+#' @param save_mcmc Whether to save posterior samples generated during Cut(). Default to FALSE.
 #' @return A list...
 #' @export
 #' 
@@ -940,7 +940,6 @@ beta_min <- function(beta, llambdax, y12, ddd) {
     y <- sum(log(ddd) * ddd^beta * exp(llambdax)) - sum(y12 * log(ddd))
     return(y)
 }
-
 
 
 lk_iso3_loglin=function(S1,S2,noverlap,y12,CPU,X1,X2){

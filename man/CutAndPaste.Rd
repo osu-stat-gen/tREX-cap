@@ -2,7 +2,7 @@
 % Please edit documentation in R/tRex.r
 \name{CutAndPaste}
 \alias{CutAndPaste}
-\title{Run both cut and paste}
+\title{Run both cut and paste in one step}
 \usage{
 CutAndPaste(
   contact,
@@ -15,17 +15,17 @@ CutAndPaste(
 )
 }
 \arguments{
-\item{contact}{placeholder}
+\item{contact}{The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j.}
 
-\item{CPU}{placeholder}
+\item{bias}{placeholder}
 
-\item{save_mcmc}{placeholder}
+\item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Default to 1.}
 
-\item{cutresult}{placeholder}
+\item{save_mcmc}{Whether to save posterior samples generated during Cut(). Default to FALSE.}
 }
 \value{
 A list...
 }
 \description{
-Run both cut and paste
+Run both cut and paste in one step
 }
