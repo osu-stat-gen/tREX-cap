@@ -8,3 +8,5 @@ src/Makevars
 src/*.o
 inst/do
 src/*.so
+/doc/
+/Meta/
