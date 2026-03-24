@@ -19,9 +19,9 @@ Cut(
 
 \item{bias}{placeholder}
 
-\item{breaks}{placeholder}
+\item{breaks}{A vector that describes the index of pre-specified cut points. If unspecified, equal block size cuts will be used.}
 
-\item{block_size}{The dimension of each block.}
+\item{block_size}{The size of each block.}
 
 \item{noverlap}{Number of loci that overlaps between neighboring blocks.}
 
@@ -30,7 +30,7 @@ Cut(
 \item{save_mcmc}{Whether to save the posterior samples generated during the MCMC step. Default to FALSE.}
 }
 \value{
-placeholder
+A list of the following elements: cutlist, result, noverlap and block_size.
 }
 \description{
 Cut the contact matrix into parts and estimate the structure of each partition.

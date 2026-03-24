@@ -7,14 +7,14 @@
 Paste_orig(contact, cutresult, CPU = 1)
 }
 \arguments{
-\item{contact}{placeholder}
+\item{contact}{The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j.}
 
-\item{cutresult}{placeholder}
+\item{cutresult}{The result from Cut() call.}
 
 \item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Default to 1.}
 }
 \value{
-A list...
+An \eqn{n \times 3} matrix of the coordinates of each locus.
 }
 \description{
 Run the paste part of cut and paste
