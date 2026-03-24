@@ -2,7 +2,7 @@
 % Please edit documentation in R/tRex.r
 \name{CutAndPaste}
 \alias{CutAndPaste}
-\title{Run both cut and paste in one step}
+\title{Run Cut-And-Paste}
 \usage{
 CutAndPaste(
   contact,
@@ -24,8 +24,8 @@ CutAndPaste(
 \item{save_mcmc}{Whether to save posterior samples generated during Cut(). Default to FALSE.}
 }
 \value{
-A list...
+An \eqn{n \times 3} matrix of the estimated coordinates.
 }
 \description{
-Run both cut and paste in one step
+Run Cut-And-Paste
 }

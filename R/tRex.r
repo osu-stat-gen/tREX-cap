@@ -492,7 +492,7 @@ get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
   return(cutlist)
 }
 
-#' @title Run Cut Algorithm
+#' @title Cut Contract Matrix Into Blocks and Estimate Structure
 #' @description Cut the contact matrix into parts and estimate the structure of each partition.
 #' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j. 
 #' @param bias placeholder
@@ -542,7 +542,7 @@ Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap =
 #' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j. 
 #' @param cutresult The result from Cut() call.
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
-#' @return An \eqn{n \times 3} matrix of the coordinates of each locus. 
+#' @return An \eqn{n \times 3} matrix of the estimated coordinates. 
 #' @export
 #' 
 Paste_orig <- function(contact, cutresult, CPU = 1){
@@ -661,12 +661,12 @@ Paste_orig <- function(contact, cutresult, CPU = 1){
   return(FS12)
 }
 
-#' @title Run the paste part of cut and paste
+#' @title Pasting All Blocks
 #'
 #' @param contact The contact matrix. See Cut() for detailed explanation. 
 #' @param cutresult The result object from running Cut().  
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
-#' @return A list of estimated 3D coordinates and likelihood.
+#' @return An \eqn{n \times 3} matrix of the estimated coordinates. 
 #' @export
 #' 
 Paste <- function(contact, cutresult, CPU = 1){
@@ -878,13 +878,13 @@ Paste <- function(contact, cutresult, CPU = 1){
 }
 
 
-#' @title Run both cut and paste in one step
+#' @title Run Cut-And-Paste
 #'
 #' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j. 
 #' @param bias placeholder
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
 #' @param save_mcmc Whether to save posterior samples generated during Cut(). Default to FALSE.
-#' @return A list...
+#' @return An \eqn{n \times 3} matrix of the estimated coordinates. 
 #' @export
 #' 
 CutAndPaste <- function(contact, bias= NULL, breaks = NULL, block_size = 40, noverlap = 1, CPU, save_mcmc = FALSE){
@@ -1006,6 +1006,6 @@ lk_iso3_loglin=function(S1,S2,noverlap,y12,CPU,X1,X2){
     nS2=pick[8]*nS2
     # list(nS2,X,pick[7])
     
-    return(list(result = list(nS2, X, pick[9]), lkv = lkv))
+    return(nS2)
 }
 

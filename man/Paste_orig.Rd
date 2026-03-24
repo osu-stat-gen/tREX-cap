@@ -14,7 +14,7 @@ Paste_orig(contact, cutresult, CPU = 1)
 \item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Default to 1.}
 }
 \value{
-An \eqn{n \times 3} matrix of the coordinates of each locus.
+An \eqn{n \times 3} matrix of the estimated coordinates.
 }
 \description{
 Run the paste part of cut and paste

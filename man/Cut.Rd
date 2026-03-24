@@ -2,7 +2,7 @@
 % Please edit documentation in R/tRex.r
 \name{Cut}
 \alias{Cut}
-\title{Run Cut Algorithm}
+\title{Cut Contract Matrix Into Blocks and Estimate Structure}
 \usage{
 Cut(
   contact,
