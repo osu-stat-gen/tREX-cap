@@ -444,13 +444,16 @@ mat_dist <- function(x, y) {
 #   return(y)
 # }
 
-# input a vector of break points and the dimension of the contact matrix
-# output a list of the start and end breakpoints 
 
-
+#' @title Generate Overlapping Block Boundaries
+#' @param n the number of loci to partition.
+#' @param breaks A vector that describes the index of pre-specified cut points. If unspecified, equal block size cuts will be used.
+#' @param block_size The size of each block.
+#' @param noverlap Number of loci that overlaps between neighboring blocks.
+#' @return A list. Each element is a size 2 vector detailing the index of the first and last element of the block.
+#' @export
 get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
   numloci = n
-  
   # if breaks is null, then we assume that the block_size is equal
   if(is.null(breaks)){
     nblock <- ceiling(numloci / block_size)
@@ -489,20 +492,17 @@ get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
   return(cutlist)
 }
 
-
 #' @title Run Cut Algorithm
 #' @description Cut the contact matrix into parts and estimate the structure of each partition.
 #' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j. 
 #' @param bias placeholder
-#' @param breaks placeholder
-#' @param block_size The dimension of each block.
+#' @param breaks A vector that describes the index of pre-specified cut points. If unspecified, equal block size cuts will be used.
+#' @param block_size The size of each block.
 #' @param noverlap Number of loci that overlaps between neighboring blocks.
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
 #' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Default to FALSE.
-#' @return placeholder
+#' @return A list of the following elements: cutlist, result, noverlap and block_size.
 #' @export
-#' 
-# Run the cut part of cut and paste
 Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap = 1, CPU = 1, save_mcmc = FALSE){
   n = ncol(contact)
   cutlist = get.breakpoints(breaks=breaks, n=n, block_size=block_size, noverlap=noverlap)
@@ -539,10 +539,10 @@ Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap =
 
 #' @title Run the paste part of cut and paste
 #'
-#' @param contact placeholder
-#' @param cutresult placeholder
+#' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j. 
+#' @param cutresult The result from Cut() call.
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
-#' @return A list...
+#' @return An \eqn{n \times 3} matrix of the coordinates of each locus. 
 #' @export
 #' 
 Paste_orig <- function(contact, cutresult, CPU = 1){
@@ -658,7 +658,7 @@ Paste_orig <- function(contact, cutresult, CPU = 1){
   FS12 <- rbind(S1[1:(fixed_point - 1), ], nS2)
   likelihood <- rbind(likelihood, c(k+1, res))
   
-  return(list(FS12, likelihood))
+  return(FS12)
 }
 
 #' @title Run the paste part of cut and paste
