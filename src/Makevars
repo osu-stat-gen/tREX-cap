@@ -1,4 +1,4 @@
 CXX_STD = CXX11
-PKG_CXXFLAGS = -I/usr/include $(SHLIB_OPENMP_CXXFLAGS) -Xpreprocessor -fopenmp
+PKG_CXXFLAGS = -I/usr/include $(SHLIB_OPENMP_CXXFLAGS)
 PKG_CFLAGS = -I/usr/include
-PKG_LIBS = -lgsl -lgslcblas -lm $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -lomp
+PKG_LIBS = -lgsl -lgslcblas -lm $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
