@@ -1,8 +1,8 @@
 ---
-title: "running-trex-cap"
+title: "tRexCAP"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{running-trex-cap}
+  %\VignetteIndexEntry{tRexCAP}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
