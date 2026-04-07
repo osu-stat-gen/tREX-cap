@@ -7,11 +7,11 @@
 draw.struct(coordinates)
 }
 \arguments{
-\item{coordinates}{A matrix of three coloumns correspoding to three coordinates.}
+\item{coordinates}{A matrix of three columns corresponding to x, y, and z coordinates.}
 }
 \value{
 The figure.
 }
 \description{
-Using a rgl package, this function provides a visualization function of the 3D structure
+This function provides visualization of the 3D structure through the rgl package.
 }

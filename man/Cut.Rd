@@ -2,7 +2,7 @@
 % Please edit documentation in R/tRex.r
 \name{Cut}
 \alias{Cut}
-\title{Cut Contract Matrix Into Blocks and Estimate Structure}
+\title{Cut the contract matrix into blocks and estimate structure}
 \usage{
 Cut(
   contact,
@@ -17,20 +17,20 @@ Cut(
 \arguments{
 \item{contact}{The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j.}
 
-\item{bias}{placeholder}
+\item{bias}{HiC bias matrix. An \eqn{n \times 3} matrix whose columns are: effective fragment information, GC content, and mappability.}
 
-\item{breaks}{A vector that describes the index of pre-specified cut points. If unspecified, equal block size cuts will be used.}
+\item{breaks}{A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.}
 
 \item{block_size}{The size of each block.}
 
-\item{noverlap}{Number of loci that overlaps between neighboring blocks.}
+\item{noverlap}{Number of loci that overlap between neighboring blocks.}
 
-\item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Default to 1.}
+\item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Defauls to 1.}
 
-\item{save_mcmc}{Whether to save the posterior samples generated during the MCMC step. Default to FALSE.}
+\item{save_mcmc}{Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.}
 }
 \value{
-A list of the following elements: cutlist, result, noverlap and block_size.
+A list of the following elements: cutlist, result, noverlap, and block_size.
 }
 \description{
 Cut the contact matrix into parts and estimate the structure of each partition.

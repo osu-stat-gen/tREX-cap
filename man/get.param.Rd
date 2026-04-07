@@ -2,16 +2,16 @@
 % Please edit documentation in R/tRex.r
 \name{get.param}
 \alias{get.param}
-\title{get posterior samples of parameters.}
+\title{Get the posterior samples of parameters}
 \usage{
 get.param(psample)
 }
 \arguments{
-\item{psample}{An output of tRex().}
+\item{psample}{An output from tRex().}
 }
 \value{
-A matrix of 10000 rows and 5 columns of \eqn{\beta_1}, \eqn{cov_1}, \eqn{cov_2}, \eqn{\sigma_x}, and \eqn{\sigma_u}
+A matrix of 10,000 rows and 5 columns, where each column corresponds to \eqn{\beta_1}, \eqn{cov_1}, \eqn{cov_2}, \eqn{\sigma_x}, and \eqn{\sigma_u}.
 }
 \description{
-get posterior samples of parameters.
+Get the posterior samples of parameters
 }

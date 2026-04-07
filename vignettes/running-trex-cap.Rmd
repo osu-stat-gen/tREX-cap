@@ -14,24 +14,26 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Load data
+
+An example contact matrix of n=43 loci can be loaded by calling `data(sim_hic)`. The matrix should be \eqn{n \times n} and symmetric, where the (i, j) entry of the matrix is the count of interactions between loci i and j. The diagnoal elements of the matrix should be 0.
+
+The optional bias matrix should be of dimension \eqn{n \times 3}. The 3 columns describe effective fragment information, GC content, and mappability for each locus, respectively. 
 ```{r setup}
 library(tRexCAP)
-# load example data
 data(sim_hic)
 data(sim_bias)
 ```
 
-# just cut
-```{r}
-CutRes = Cut(contact = sim_hic, bias = sim_bias, block_size = 12, noverlap = 1, CPU = 5)
-```
+# Running Cut-and-Paste
+Once the data is loaded, Cut-and-Paste algorithm can run separately by calling `Cut` and `Paste` in two separate steps.
 
-# then paste
-```{r}
+```{r, eval=FALSE}
+CutRes = Cut(contact = sim_hic, bias = sim_bias, block_size = 12, noverlap = 1, CPU = 5)
 PasteRes = Paste(contact = sim_hic, cutresult = CutRes, CPU = 5)
 ```
 
-# or use cut and paste
-```{r}
+Alternatively, it can be run in a single step by calling `CutAndPaste`
+```{r, eval=FALSE}
 CAPRes = CutAndPaste(contact = sim_hic, block_size = 12, noverlap = 1, CPU = 5)
 ```

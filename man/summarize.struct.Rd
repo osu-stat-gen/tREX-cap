@@ -2,18 +2,18 @@
 % Please edit documentation in R/tRex.r
 \name{summarize.struct}
 \alias{summarize.struct}
-\title{Summarizing posterior samples of loci coordinates.}
+\title{Summarize posterior samples of loci coordinates}
 \usage{
 summarize.struct(psample, method = c("Mode", "Mean", "MAP"))
 }
 \arguments{
-\item{psample}{An output of tRex().}
+\item{psample}{An output from tRex().}
 
-\item{method}{which method to summarize the coordinates. One of "Mode", "Mean", or "MAP".}
+\item{method}{The method used for summarizing the coordinates. One of "Mode", "Mean", or "MAP".}
 }
 \value{
 A matrix of three columns and n rows, where n is the number of loci.
 }
 \description{
-Posterior coordinates can be summarized using either posterior mode or posterior mean.
+Posterior coordinates can be summarized using either the posterior mode or posterior mean.
 }

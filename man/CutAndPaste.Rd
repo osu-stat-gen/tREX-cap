@@ -17,11 +17,15 @@ CutAndPaste(
 \arguments{
 \item{contact}{The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j.}
 
-\item{bias}{placeholder}
+\item{bias}{HiC bias matrix. An \eqn{n \times 3} matrix whose columns are: effective fragment information, GC content, and mappability.}
 
-\item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Default to 1.}
+\item{breaks}{A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.}
 
-\item{save_mcmc}{Whether to save posterior samples generated during Cut(). Default to FALSE.}
+\item{block_size}{The size of each block.}
+
+\item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Defaults to 1.}
+
+\item{save_mcmc}{Whether to save posterior samples generated during Cut(). Defaults to FALSE.}
 }
 \value{
 An \eqn{n \times 3} matrix of the estimated coordinates.

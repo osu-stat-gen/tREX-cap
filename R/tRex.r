@@ -280,10 +280,10 @@ function(contact,bias=NULL,mcmc=10000,burn=10000,jump.beta1,jump.x=0.1,jump.u=0.
 
 
 
-#' @title get posterior samples of coordinates of a specific locus.
-#' @param psample An output of tRex().
-#' @param i The locus to get coordinates. 
-#' @return A Matrix of 10000 rows. 1st, 2nd, and 3rd colums corresponds to x,y, and z coordinates. Each rows corresponds to a posterior sample  of coordinates.
+#' @title Get posterior samples of coordinates for a specific locus
+#' @param psample An output from tRex().
+#' @param i The index for which to retrive coordinates. 
+#' @return A matrix of 10,000 rows. 1st, 2nd, and 3rd columns corresponds to x,y, and z coordinates. Each row corresponds to a posterior sample  of coordinates.
 #' @export
 #' 
 get.sample=function(psample,i){
@@ -294,19 +294,19 @@ get.sample=function(psample,i){
 	Si
 }
 
-#' @title get posterior samples of parameters.
-#' @param psample An output of tRex().
-#' @return A matrix of 10000 rows and 5 columns of \eqn{\beta_1}, \eqn{cov_1}, \eqn{cov_2}, \eqn{\sigma_x}, and \eqn{\sigma_u}
+#' @title Get the posterior samples of parameters
+#' @param psample An output from tRex().
+#' @return A matrix of 10,000 rows and 5 columns, where each column corresponds to \eqn{\beta_1}, \eqn{cov_1}, \eqn{cov_2}, \eqn{\sigma_x}, and \eqn{\sigma_u}.
 #' @export
 #' 
 get.param=function(psample){
 	Param=psample[[2]]
 }	
 	
-#' @title Summarizing posterior samples of loci coordinates.
-#' @description Posterior coordinates can be summarized using either posterior mode or posterior mean.
-#' @param psample An output of tRex().
-#' @param method which method to summarize the coordinates. One of "Mode", "Mean", or "MAP".
+#' @title Summarize posterior samples of loci coordinates
+#' @description Posterior coordinates can be summarized using either the posterior mode or posterior mean.
+#' @param psample An output from tRex().
+#' @param method The method used for summarizing the coordinates. One of "Mode", "Mean", or "MAP".
 #' @return A matrix of three columns and n rows, where n is the number of loci.
 #' @export
 #' 
@@ -350,8 +350,8 @@ summarize.struct=function(psample,method=c("Mode","Mean","MAP")){
 }
 
 #' @title Draw 3D structure
-#' @description Using a rgl package, this function provides a visualization function of the 3D structure
-#' @param coordinates A matrix of three coloumns correspoding to three coordinates.
+#' @description This function provides visualization of the 3D structure through the rgl package.
+#' @param coordinates A matrix of three columns corresponding to x, y, and z coordinates.
 #' @return The figure.
 #' @export
 draw.struct=function(coordinates){
@@ -364,7 +364,6 @@ draw.struct=function(coordinates){
 	df$color="yellow"
 	df$size=2
 
-
 	plot3d(df$x, df$y, df$z, col=df$color, size=df$size, type='s',lwd=1,xlab="",ylab="",zlab="")
 
 	for(i in 1:(n-1)){
@@ -375,7 +374,6 @@ draw.struct=function(coordinates){
 
 mctrex <- function(k, bias = NULL, contact, cutlist, save_mcmc = FALSE) {
   # partition the matrix
-  
   start <- cutlist[[k]][1]
   end <- cutlist[[k]][2]
   
@@ -445,12 +443,12 @@ mat_dist <- function(x, y) {
 # }
 
 
-#' @title Generate Overlapping Block Boundaries
-#' @param n the number of loci to partition.
-#' @param breaks A vector that describes the index of pre-specified cut points. If unspecified, equal block size cuts will be used.
+#' @title Generate overlapping block boundaries
+#' @param n The number of loci to partition.
+#' @param breaks A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.
 #' @param block_size The size of each block.
-#' @param noverlap Number of loci that overlaps between neighboring blocks.
-#' @return A list. Each element is a size 2 vector detailing the index of the first and last element of the block.
+#' @param noverlap Number of loci that overlap between neighboring blocks.
+#' @return A list. Each element is a size-2 vector detailing the index of the first and last element of the block.
 #' @export
 get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
   numloci = n
@@ -492,16 +490,16 @@ get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
   return(cutlist)
 }
 
-#' @title Cut Contract Matrix Into Blocks and Estimate Structure
+#' @title Cut the contract matrix into blocks and estimate structure
 #' @description Cut the contact matrix into parts and estimate the structure of each partition.
-#' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j. 
-#' @param bias placeholder
-#' @param breaks A vector that describes the index of pre-specified cut points. If unspecified, equal block size cuts will be used.
+#' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j.
+#' @param bias HiC bias matrix. An \eqn{n \times 3} matrix whose columns are: effective fragment information, GC content, and mappability.
+#' @param breaks A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.
 #' @param block_size The size of each block.
-#' @param noverlap Number of loci that overlaps between neighboring blocks.
-#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
-#' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Default to FALSE.
-#' @return A list of the following elements: cutlist, result, noverlap and block_size.
+#' @param noverlap Number of loci that overlap between neighboring blocks.
+#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defauls to 1.
+#' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.
+#' @return A list of the following elements: cutlist, result, noverlap, and block_size.
 #' @export
 Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap = 1, CPU = 1, save_mcmc = FALSE){
   n = ncol(contact)
@@ -540,9 +538,9 @@ Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap =
 #' @title Run the paste part of cut and paste
 #'
 #' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j. 
-#' @param cutresult The result from Cut() call.
-#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
-#' @return An \eqn{n \times 3} matrix of the estimated coordinates. 
+#' @param cutresult The result from a Cut() call.
+#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defaults to 1.
+#' @return An \eqn{n \times 3} matrix of the estimated coordinates.
 #' @export
 #' 
 Paste_orig <- function(contact, cutresult, CPU = 1){
@@ -661,12 +659,12 @@ Paste_orig <- function(contact, cutresult, CPU = 1){
   return(FS12)
 }
 
-#' @title Pasting All Blocks
+#' @title Pasting all blocks
 #'
-#' @param contact The contact matrix. See Cut() for detailed explanation. 
-#' @param cutresult The result object from running Cut().  
-#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
-#' @return An \eqn{n \times 3} matrix of the estimated coordinates. 
+#' @param contact The contact matrix. See Cut() for detailed explanation.
+#' @param cutresult The result object from running Cut().
+#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defaults to 1.
+#' @return An \eqn{n \times 3} matrix of the estimated coordinates.
 #' @export
 #' 
 Paste <- function(contact, cutresult, CPU = 1){
@@ -880,11 +878,13 @@ Paste <- function(contact, cutresult, CPU = 1){
 
 #' @title Run Cut-And-Paste
 #'
-#' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j. 
-#' @param bias placeholder
-#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Default to 1.
-#' @param save_mcmc Whether to save posterior samples generated during Cut(). Default to FALSE.
-#' @return An \eqn{n \times 3} matrix of the estimated coordinates. 
+#' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j.
+#' @param bias HiC bias matrix. An \eqn{n \times 3} matrix whose columns are: effective fragment information, GC content, and mappability.
+#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defaults to 1.
+#' @param breaks A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.
+#' @param block_size The size of each block.
+#' @param save_mcmc Whether to save posterior samples generated during Cut(). Defaults to FALSE.
+#' @return An \eqn{n \times 3} matrix of the estimated coordinates.
 #' @export
 #' 
 CutAndPaste <- function(contact, bias= NULL, breaks = NULL, block_size = 40, noverlap = 1, CPU, save_mcmc = FALSE){

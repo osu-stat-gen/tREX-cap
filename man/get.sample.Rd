@@ -2,18 +2,18 @@
 % Please edit documentation in R/tRex.r
 \name{get.sample}
 \alias{get.sample}
-\title{get posterior samples of coordinates of a specific locus.}
+\title{Get posterior samples of coordinates for a specific locus}
 \usage{
 get.sample(psample, i)
 }
 \arguments{
-\item{psample}{An output of tRex().}
+\item{psample}{An output from tRex().}
 
-\item{i}{The locus to get coordinates.}
+\item{i}{The index for which to retrive coordinates.}
 }
 \value{
-A Matrix of 10000 rows. 1st, 2nd, and 3rd colums corresponds to x,y, and z coordinates. Each rows corresponds to a posterior sample  of coordinates.
+A matrix of 10,000 rows. 1st, 2nd, and 3rd columns corresponds to x,y, and z coordinates. Each row corresponds to a posterior sample  of coordinates.
 }
 \description{
-get posterior samples of coordinates of a specific locus.
+Get posterior samples of coordinates for a specific locus
 }

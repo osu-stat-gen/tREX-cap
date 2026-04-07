@@ -2,7 +2,7 @@
 % Please edit documentation in R/tRex.r
 \name{Paste}
 \alias{Paste}
-\title{Pasting All Blocks}
+\title{Pasting all blocks}
 \usage{
 Paste(contact, cutresult, CPU = 1)
 }
@@ -11,11 +11,11 @@ Paste(contact, cutresult, CPU = 1)
 
 \item{cutresult}{The result object from running Cut().}
 
-\item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Default to 1.}
+\item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Defaults to 1.}
 }
 \value{
 An \eqn{n \times 3} matrix of the estimated coordinates.
 }
 \description{
-Pasting All Blocks
+Pasting all blocks
 }

@@ -2,22 +2,22 @@
 % Please edit documentation in R/tRex.r
 \name{get.breakpoints}
 \alias{get.breakpoints}
-\title{Generate Overlapping Block Boundaries}
+\title{Generate overlapping block boundaries}
 \usage{
 get.breakpoints(breaks = NULL, n, block_size = 40, noverlap = 1)
 }
 \arguments{
-\item{breaks}{A vector that describes the index of pre-specified cut points. If unspecified, equal block size cuts will be used.}
+\item{breaks}{A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.}
 
-\item{n}{the number of loci to partition.}
+\item{n}{The number of loci to partition.}
 
 \item{block_size}{The size of each block.}
 
-\item{noverlap}{Number of loci that overlaps between neighboring blocks.}
+\item{noverlap}{Number of loci that overlap between neighboring blocks.}
 }
 \value{
-A list. Each element is a size 2 vector detailing the index of the first and last element of the block.
+A list. Each element is a size-2 vector detailing the index of the first and last element of the block.
 }
 \description{
-Generate Overlapping Block Boundaries
+Generate overlapping block boundaries
 }
