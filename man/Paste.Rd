@@ -2,14 +2,14 @@
 % Please edit documentation in R/tRex.r
 \name{Paste}
 \alias{Paste}
-\title{Pasting all blocks}
+\title{Run the paste part of cut and paste}
 \usage{
 Paste(contact, cutresult, CPU = 1)
 }
 \arguments{
-\item{contact}{The contact matrix. See Cut() for detailed explanation.}
+\item{contact}{The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j.}
 
-\item{cutresult}{The result object from running Cut().}
+\item{cutresult}{The result from a Cut() call.}
 
 \item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Defaults to 1.}
 }
@@ -17,5 +17,5 @@ Paste(contact, cutresult, CPU = 1)
 An \eqn{n \times 3} matrix of the estimated coordinates.
 }
 \description{
-Pasting all blocks
+Run the paste part of cut and paste
 }
