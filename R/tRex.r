@@ -432,16 +432,6 @@ Rz_apply <- function(S, theta) {
   # a <- t(R %*% t(S))
 }
 
-# fast way to calculate vector distance
-mat_dist <- function(x, y) {
-  sqrt(outer(rowSums(x^2), rowSums(y^2), "+") - tcrossprod(x, 2 * y))
-}
-
-# beta_min <- function(beta, llambdax, y12, ddd) {
-#   y <- sum(log(ddd) * ddd^beta * exp(llambdax)) - sum(y12 * log(ddd))
-#   return(y)
-# }
-
 
 #' @title Generate overlapping block boundaries
 #' @param n The number of loci to partition.
@@ -518,15 +508,6 @@ Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap =
     } else {
       warning("doParallel is required for parallel processing on Windows, but it is not installed.")
     }
-  # } else {
-  #   # Load doMC for Unix-like systems (Linux, macOS)
-  #   if (requireNamespace("doMC", quietly = TRUE)) {
-  #     doMC::registerDoMC(cores = CPU)
-  #   } else {
-  #     warning("doMC is required for parallel processing on Unix-like systems, but it is not installed.")
-  #   }
-  # }
-  
   result <- foreach(k = 1:nblock) %dopar% {
     mctrex(k = k, bias = bias, contact = contact, cutlist = cutlist, save_mcmc = save_mcmc) 
   }
@@ -535,6 +516,123 @@ Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap =
 }
 
 
+
+# Paste_orig <- function(contact, cutresult, CPU = 1){
+#   cutlist <- cutresult[[1]] # these are the breakpoints
+#   result <- cutresult[[2]] # these are the cuts
+#   noverlap <- cutresult[[3]] # this is noverlap used for the cuts
+#   block_size <- cutresult[[4]] # this is block_size used for the cuts
+  
+#   y2 <- contact 
+#   N <- nrow(y2)
+  
+#   sr <- 1
+#   # initial block
+#   start <- 1    #shouldn't need this for the initial block:  max(1, (sr - 1) * block_size - noverlap + 1)
+#   likelihood <- NULL
+#   y11 <- y2[start:nrow(y2), start:nrow(y2)]
+#   block1_end <- floor(length(cutlist)/2)-1  #floor(N / block_size / 2) - 1
+#   k <- 1
+#   for (k in sr:block1_end) {
+#     cat("k =", k, "\n")
+#     if (k == sr) {
+#       S1 <- result[[k]]$coords ## L1
+#       X1 <- result[[k]]$X[, 1]
+#     }
+    
+#     # remove M1 and M2 margins, fix the last of M1 and first of M2 both to be (0,0,0)
+#     n1 <- nrow(S1)
+#     S1 <- t(t(S1) - S1[(n1 - noverlap + 1), ])
+#     S2 <- result[[(k + 1)]]$coords ## L2
+#     S2 <- S2[(noverlap + 1):nrow(S2), ]
+#     S2 <- t(t(S2) - S2[1, ])
+#     n2 <- nrow(S2)
+#     X2 <- result[[(k + 1)]]$X[, 1]
+    
+#     fixed_point <- n1 - noverlap + 1
+#     if (fixed_point > N) break
+#     cat("Fixed Point", n1 - noverlap + 1, "\n")
+#     y12 <- y11[1:(fixed_point - 1), fixed_point:(fixed_point - 1 + n2)]
+#     fixed_point <- n1 - noverlap + 1
+#     llambdax <- exp(outer(X1[1:(n1 - noverlap)], X2[-(1:noverlap)], FUN = "+"))
+#     n1 <- nrow(S1)
+#     S1 <- S1[1:(n1 - noverlap), ]
+#     # running APG in C++
+#     res <- minimizer(50, y12,S1,S2,llambdax, threads=CPU)
+#     # rotate wrt the minimizer
+#     nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
+#     # paste results to current matrices
+#     X1 <- c(X1[1:(n1 - noverlap)], X2[-(1:noverlap)])
+#     S1 <- rbind(S1[1:(fixed_point - 1), ], nS2)
+#     likelihood <- rbind(likelihood, c(k, res))
+#   }
+  
+#   SS1 <- S1
+#   X11 <- X1
+  
+#   sr <- block1_end + 2
+#   block2_end <- length(cutlist)-1   #ceiling(N / block_size) - 1
+  
+#   start <- max(1, cutlist[[sr]][1])  #max(1, (sr - 1) * block_size - noverlap + 1)
+#   y22 <- y2[start:nrow(y2), start:nrow(y2)] 
+#   for (k in sr:block2_end) {
+#     cat("k =", k, "\n")
+#     if (k == sr) {
+#       S1 <- result[[k]]$coords ## L1
+#       X1 <- result[[k]]$X[, 1]
+#     }
+    
+#     n1 <- nrow(S1)
+#     S1 <- t(t(S1) - S1[(n1 - noverlap + 1), ])
+#     S2 <- result[[(k + 1)]]$coords ## L2
+#     S2 <- S2[(noverlap + 1):nrow(S2), ]
+#     S2 <- t(t(S2) - S2[1, ])
+#     n2 <- nrow(S2)
+#     X2 <- result[[(k + 1)]]$X[, 1]
+    
+#     fixed_point <- n1 - noverlap + 1
+#     if (fixed_point > N) break
+#     cat("Fixed Point", n1 - noverlap + 1, "\n")
+#     y12 <- y22[1:(fixed_point - 1), fixed_point:(fixed_point - 1 + n2)]
+#     fixed_point <- n1 - noverlap + 1
+#     llambdax <- exp(outer(X1[1:(n1 - noverlap)], X2[-(1:noverlap)], FUN = "+"))
+#     n1 <- nrow(S1)
+#     S1 <- S1[1:(n1 - noverlap), ]
+#     #min first arugment defualt 50
+#     res <- minimizer(50, y12,S1,S2,llambdax, threads=CPU)
+#     nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
+#     X1 <- c(X1[1:(n1 - noverlap)], X2[-(1:noverlap)])
+#     S1 <- rbind(S1[1:(fixed_point - 1), ], nS2)
+#     likelihood <- rbind(likelihood, c(k, res))
+#   }
+#   SS2 <- S1
+#   X22 <- X1
+  
+  
+#   # final mix
+  
+#   S1 <- SS1
+#   S2 <- SS2
+#   S1 <- t(t(S1) - S1[(nrow(S1) - noverlap + 1), ])
+#   n1 <- nrow(S1)
+#   S2 <- S2[(noverlap + 1):nrow(S2), ]
+#   S2 <- t(t(S2) - S2[1, ])
+#   n2 <- nrow(S2)
+#   fixed_point <- n1 - noverlap + 1
+#   cat("Final: Fixed Point", n1 - noverlap + 1, "\n")
+#   y2_new <- y2[1:(fixed_point - 1), fixed_point:(fixed_point - 1 + n2)]
+  
+#   llambdax <- exp(outer(X11[1:(n1 - noverlap)], X22[-(1:noverlap)], FUN = "+"))
+#   n1 <- nrow(S1)
+#   S1 <- S1[1:(n1 - noverlap), ]
+#   res <- minimizer(50, y2_new,S1,S2,llambdax, threads=CPU)
+#   nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
+#   FS12 <- rbind(S1[1:(fixed_point - 1), ], nS2)
+#   likelihood <- rbind(likelihood, c(k+1, res))
+  
+#   return(FS12)
+# }
+
 #' @title Run the paste part of cut and paste
 #'
 #' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j. 
@@ -542,131 +640,6 @@ Cut <- function(contact, bias = NULL, breaks = NULL, block_size = 40, noverlap =
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defaults to 1.
 #' @return An \eqn{n \times 3} matrix of the estimated coordinates.
 #' @export
-#' 
-Paste_orig <- function(contact, cutresult, CPU = 1){
-  cutlist <- cutresult[[1]] # these are the breakpoints
-  result <- cutresult[[2]] # these are the cuts
-  noverlap <- cutresult[[3]] # this is noverlap used for the cuts
-  block_size <- cutresult[[4]] # this is block_size used for the cuts
-  
-  y2 <- contact 
-  N <- nrow(y2)
-  
-  sr <- 1
-  # initial block
-  start <- 1    #shouldn't need this for the initial block:  max(1, (sr - 1) * block_size - noverlap + 1)
-  likelihood <- NULL
-  y11 <- y2[start:nrow(y2), start:nrow(y2)]
-  block1_end <- floor(length(cutlist)/2)-1  #floor(N / block_size / 2) - 1
-  k <- 1
-  for (k in sr:block1_end) {
-    cat("k =", k, "\n")
-    if (k == sr) {
-      S1 <- result[[k]]$coords ## L1
-      X1 <- result[[k]]$X[, 1]
-    }
-    
-    # remove M1 and M2 margins, fix the last of M1 and first of M2 both to be (0,0,0)
-    n1 <- nrow(S1)
-    S1 <- t(t(S1) - S1[(n1 - noverlap + 1), ])
-    S2 <- result[[(k + 1)]]$coords ## L2
-    S2 <- S2[(noverlap + 1):nrow(S2), ]
-    S2 <- t(t(S2) - S2[1, ])
-    n2 <- nrow(S2)
-    X2 <- result[[(k + 1)]]$X[, 1]
-    
-    fixed_point <- n1 - noverlap + 1
-    if (fixed_point > N) break
-    cat("Fixed Point", n1 - noverlap + 1, "\n")
-    y12 <- y11[1:(fixed_point - 1), fixed_point:(fixed_point - 1 + n2)]
-    fixed_point <- n1 - noverlap + 1
-    llambdax <- exp(outer(X1[1:(n1 - noverlap)], X2[-(1:noverlap)], FUN = "+"))
-    n1 <- nrow(S1)
-    S1 <- S1[1:(n1 - noverlap), ]
-    # running APG in C++
-    res <- minimizer(50, y12,S1,S2,llambdax, threads=CPU)
-    # rotate wrt the minimizer
-    nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
-    # paste results to current matrices
-    X1 <- c(X1[1:(n1 - noverlap)], X2[-(1:noverlap)])
-    S1 <- rbind(S1[1:(fixed_point - 1), ], nS2)
-    likelihood <- rbind(likelihood, c(k, res))
-  }
-  
-  SS1 <- S1
-  X11 <- X1
-  
-  sr <- block1_end + 2
-  block2_end <- length(cutlist)-1   #ceiling(N / block_size) - 1
-  
-  start <- max(1, cutlist[[sr]][1])  #max(1, (sr - 1) * block_size - noverlap + 1)
-  y22 <- y2[start:nrow(y2), start:nrow(y2)] 
-  for (k in sr:block2_end) {
-    cat("k =", k, "\n")
-    if (k == sr) {
-      S1 <- result[[k]]$coords ## L1
-      X1 <- result[[k]]$X[, 1]
-    }
-    
-    n1 <- nrow(S1)
-    S1 <- t(t(S1) - S1[(n1 - noverlap + 1), ])
-    S2 <- result[[(k + 1)]]$coords ## L2
-    S2 <- S2[(noverlap + 1):nrow(S2), ]
-    S2 <- t(t(S2) - S2[1, ])
-    n2 <- nrow(S2)
-    X2 <- result[[(k + 1)]]$X[, 1]
-    
-    fixed_point <- n1 - noverlap + 1
-    if (fixed_point > N) break
-    cat("Fixed Point", n1 - noverlap + 1, "\n")
-    y12 <- y22[1:(fixed_point - 1), fixed_point:(fixed_point - 1 + n2)]
-    fixed_point <- n1 - noverlap + 1
-    llambdax <- exp(outer(X1[1:(n1 - noverlap)], X2[-(1:noverlap)], FUN = "+"))
-    n1 <- nrow(S1)
-    S1 <- S1[1:(n1 - noverlap), ]
-    #min first arugment defualt 50
-    res <- minimizer(50, y12,S1,S2,llambdax, threads=CPU)
-    nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
-    X1 <- c(X1[1:(n1 - noverlap)], X2[-(1:noverlap)])
-    S1 <- rbind(S1[1:(fixed_point - 1), ], nS2)
-    likelihood <- rbind(likelihood, c(k, res))
-  }
-  SS2 <- S1
-  X22 <- X1
-  
-  
-  # final mix
-  
-  S1 <- SS1
-  S2 <- SS2
-  S1 <- t(t(S1) - S1[(nrow(S1) - noverlap + 1), ])
-  n1 <- nrow(S1)
-  S2 <- S2[(noverlap + 1):nrow(S2), ]
-  S2 <- t(t(S2) - S2[1, ])
-  n2 <- nrow(S2)
-  fixed_point <- n1 - noverlap + 1
-  cat("Final: Fixed Point", n1 - noverlap + 1, "\n")
-  y2_new <- y2[1:(fixed_point - 1), fixed_point:(fixed_point - 1 + n2)]
-  
-  llambdax <- exp(outer(X11[1:(n1 - noverlap)], X22[-(1:noverlap)], FUN = "+"))
-  n1 <- nrow(S1)
-  S1 <- S1[1:(n1 - noverlap), ]
-  res <- minimizer(50, y2_new,S1,S2,llambdax, threads=CPU)
-  nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
-  FS12 <- rbind(S1[1:(fixed_point - 1), ], nS2)
-  likelihood <- rbind(likelihood, c(k+1, res))
-  
-  return(FS12)
-}
-
-#' @title Pasting all blocks
-#'
-#' @param contact The contact matrix. See Cut() for detailed explanation.
-#' @param cutresult The result object from running Cut().
-#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defaults to 1.
-#' @return An \eqn{n \times 3} matrix of the estimated coordinates.
-#' @export
-#' 
 Paste <- function(contact, cutresult, CPU = 1){
     cutlist <- cutresult[[1]] # these are the breakpoints
     result <- cutresult[[2]] # these are the cuts
@@ -675,7 +648,6 @@ Paste <- function(contact, cutresult, CPU = 1){
     
     y2 <- contact 
     N <- nrow(y2)
-
 
     sr <- 1
     # initial block
@@ -871,10 +843,9 @@ Paste <- function(contact, cutresult, CPU = 1){
       likelihood[[length(likelihood) + 1]] <- apg_result$lk
     }
     
-    return(list(structure = FS12, likelihood = likelihood))
+    return(FS12)
 
 }
-
 
 #' @title Run Cut-And-Paste
 #'
@@ -890,7 +861,7 @@ Paste <- function(contact, cutresult, CPU = 1){
 CutAndPaste <- function(contact, bias= NULL, breaks = NULL, block_size = 40, noverlap = 1, CPU, save_mcmc = FALSE){
   cuts = Cut(contact=contact, bias = bias, breaks = breaks, block_size = block_size, noverlap = noverlap, CPU=CPU, save_mcmc = save_mcmc)
   paste = Paste(contact = contact, cutresult=cuts, CPU=CPU)
-  return(list(cuts, paste))
+  return(paste)
 }
 
 
