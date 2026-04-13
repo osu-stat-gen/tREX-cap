@@ -1,7 +1,12 @@
 Package: tRexCAP
 Title: 3D Whole Genome Chromosomal Structure Estimation From HiC Data
 Version: 0.9.0
-Description: tREX-cap (Random effect EXpression-cut and paste) method uses a divide and conquer strategy for constructing whole genome three-dimensional structures.
+Description: The tREX-cap (Random effect EXpression-cut and paste) method uses
+    a divide-and-conquer strategy to construct whole-genome 3D structures.
+    The genome is first cut into pieces, and a 3D structure is built for
+    each piece from its su-bcontact matrix using 'tREX'. These structures
+    are then pasted together to form the whole-genome structure through
+    the best structure-preserving isometric transformation.
 Authors@R: c(
     person("Jincheol", "Park", role = "aut"),
     person("Meng", "Wang", , "cherrywang1006@gmail.com", role = "aut"),
