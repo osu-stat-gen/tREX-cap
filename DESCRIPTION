@@ -1,7 +1,7 @@
 Package: tRexCAP
-Title: tRexCAP Carries Out 3D Whole Genome Chromosomal Structure Estimationu U sing HiC Data
-Version: 1.0.0
-Description: tRexCAP estimates 3D chromosome structure using three Poisson models under Bayesian framework. Truncated Random effect EXpression (tREX) mode, Poisson Random Effects Architecture Model(PRAM), Truncated Poisson Architecture Model(tPAM). A package that uses a divide and conquer strategy and the tREX algorithm as the building block for constructing whole genome three-dimensional structures.
+Title: 3D Whole Genome Chromosomal Structure Estimation From HiC Data
+Version: 0.9.0
+Description: tREX-cap (Random effect EXpression-cut and paste) method uses a divide and conquer strategy for constructing whole genome three-dimensional structures.
 Authors@R: c(
     person("Jincheol", "Park", role = "aut"),
     person("Meng", "Wang", , "cherrywang1006@gmail.com", role = "aut"),

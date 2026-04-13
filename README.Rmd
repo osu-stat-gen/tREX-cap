@@ -15,7 +15,11 @@ knitr::opts_chunk$set(
 
 # tRexCAP
 
-tRex-CAP (Cut and Paste) uses a divide and conquer strategy and the tREX algorithm as the building block for constructing whole genome three-dimensional structures.
+tRex-CAP (Cut and Paste) uses the tREX algorithm as the building block and a divide and conquer strategy to reconstruct whole genome three-dimensional structures from Hi-C Data.
+
+# Reference 
+
+Please cite (insert reference here).
 
 # Installation
 
