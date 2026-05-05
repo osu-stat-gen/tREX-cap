@@ -4,7 +4,7 @@
 \alias{Paste}
 \title{Run the paste part of cut and paste}
 \usage{
-Paste(contact, cutresult, CPU = 1)
+Paste(contact, cutresult, CPU)
 }
 \arguments{
 \item{contact}{The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j.}

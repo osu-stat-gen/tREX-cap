@@ -1,5 +1,5 @@
 ---
-title: "tRexCAP"
+title: "tRexCAP: A Divide and Conquer Strategy for Recapitulating Whole Genome 3D Structure Using Hi-C Data"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{tRexCAP}
@@ -14,21 +14,51 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Load data
+# Introduction
+The spatial organization of the genome is a critical determinant of cellular function, yet its complex architecture cannot be fully captured through linear sequencing alone. Hi-C technology overcomes this limitation by capturing chromosomal conformation information between loci. Translating the resulting 2D proximity matrices into physical 3D models enables the identification of spatial "neighborhoods," revealing how non-coding genetic variants exert regulatory influence over vast genomic distances.
 
-An example contact matrix of n=43 loci can be loaded by calling `data(sim_hic)`. The matrix should be \eqn{n \times n} and symmetric, where the (i, j) entry of the matrix is the count of interactions between loci i and j. The diagnoal elements of the matrix should be 0.
+tRex-CAP (Cut and Paste) is designed to reconstruct whole-genome three-dimensional structures from Hi-C data. The method employs a divide-and-conquer strategy to manage the complexity of genomic data: first, each chromosome is partitioned into $n$ overlapping blocks; second, the tRex algorithm reconstitutes the 3D structure of each block independently; finally, these local structures are "pasted" together to form a global model while preserving the structural rigidity of the individual blocks.
 
-The optional bias matrix should be of dimension \eqn{n \times 3}. The 3 columns describe effective fragment information, GC content, and mappability for each locus, respectively. 
+In this pacakge, we provide the following main functions:
+
+* Cut
+* Paste
+* CutAndPaste
+* DrawStucture
+
+We illustrate the usage of these functions in the following sections.
+
+# Example Data
+
+An example contact matrix of n=1000 loci simulated with Poisson model with random effects can be loaded by calling `data(example_data)`. The matrix should be \eqn{n \times n} and symmetric, where the (i, j) entry of the matrix is the count of interactions between loci i and j. The diagnoal elements of the matrix should be 0.
+
+
 ```{r setup}
 library(tRexCAP)
-data(sim_hic)
-data(sim_bias)
+data(example_data)
+dim(example_data)
 ```
 
-# Running Cut-and-Paste
+The optional bias matrix should be of dimension \eqn{n \times 3}. The 3 columns describe effective fragment information, GC content, and mappability for each locus, respectively. 
+
+```{r bias}
+data(example_bias)
+head(example_bias)
+
+
+```
+
+
+# tRex-CAP
+## Cut 
+
+For simplicity, we use the first 100 loci in our example
+
 Once the data is loaded, Cut-and-Paste algorithm can run separately by calling `Cut` and `Paste` in two separate steps.
 
 ```{r, eval=FALSE}
+example_data_short <- example_data[1:100, 1:100]
+example_data_short_bias <- example_bias[1:100:,]
 CutRes = Cut(contact = sim_hic, bias = sim_bias, block_size = 12, noverlap = 1, CPU = 5)
 PasteRes = Paste(contact = sim_hic, cutresult = CutRes, CPU = 5)
 ```
@@ -37,3 +67,18 @@ Alternatively, it can be run in a single step by calling `CutAndPaste`
 ```{r, eval=FALSE}
 CAPRes = CutAndPaste(contact = sim_hic, block_size = 12, noverlap = 1, CPU = 5)
 ```
+
+## Paste
+
+## CutAndPaste
+## Results 
+
+## Visualization
+
+# Computation Cost
+
+# Example 
+
+# Versions
+
+# Reference

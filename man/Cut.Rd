@@ -10,8 +10,21 @@ Cut(
   breaks = NULL,
   block_size = 40,
   noverlap = 1,
-  CPU = 1,
-  save_mcmc = FALSE
+  CPU,
+  save_mcmc = FALSE,
+  mcmc = 1e+05,
+  burn = 1e+05,
+  thinning = 10,
+  jump.beta1 = 0.05,
+  jump.x = 0.2,
+  jump.u = 0.2,
+  jump.cov1 = 0.1,
+  jump.cov2 = 0.1,
+  leapfrog.L = 10,
+  leapfrog.e = 0.001,
+  target.accept = 0.95,
+  tuning_control = NULL,
+  method.type = "tRex"
 )
 }
 \arguments{
