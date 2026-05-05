@@ -42,10 +42,7 @@ dim(example_data)
 The optional bias matrix should be of dimension \eqn{n \times 3}. The 3 columns describe effective fragment information, GC content, and mappability for each locus, respectively. 
 
 ```{r bias}
-data(example_bias)
 head(example_bias)
-
-
 ```
 
 
