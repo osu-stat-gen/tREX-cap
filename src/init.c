@@ -6,18 +6,57 @@
 #include <R_ext/Rdynload.h>
 
 /*** .C routines from nz.c ***/
-void nz (double*, double*, int*, int*, int*, double*, double*, double*,
-         int*, double*, int*, int*, double*);
-void nz2(double*,          int*, int*, int*, double*, double*, double*,
-         int*, double*, int*, int*, double*);
+// void nz (double*, double*, int*, int*, int*, double*, double*, double*,
+//          int*, double*, int*, int*, double*);
+// void nz2(double*,          int*, int*, int*, double*, double*, double*,
+//          int*, double*, int*, int*, double*);
+void nz(
+    double*,  // Contact
+    double*,  // bias
+    int*,     // n
+    int*,     // repn
+    int*,     // repb
+    double*,  // argv0
+    double*,  // argv1
+    double*,  // argv2
+    int*,     // nHL
+    double*,  // vepsilon
+    int*,     // thinning
+    int*,     // gear
+    int*, int*, int*, int*, int*,          // it1..it5
+    int*, int*, int*, int*, int*,          // bs1..bs5
+    int*,                                  // max_cyc
+    double*,                               // target
+    double*                                // result
+);
+
+void nz2(
+    double*,  // Contact
+    int*,     // n
+    int*,     // repn
+    int*,     // repb
+    double*,  // argv0
+    double*,  // argv1
+    double*,  // argv2
+    int*,     // nHL
+    double*,  // vepsilon
+    int*,     // thinning
+    int*,     // gear
+    int*, int*, int*, int*, int*,          // it1..it5
+    int*, int*, int*, int*, int*,          // bs1..bs5
+    int*,                                  // max_cyc
+    double*,                               // target
+    double*                                // result
+);
+
 void bn (double*, double*, int*, int*, int*, double*, double*, double*,
          int*, double*, int*, int*, double*);
 void bn2(double*,          int*, int*, int*, double*, double*, double*,
          int*, double*, int*, int*, double*);
 
 static const R_CMethodDef CEntries[] = {
-  {"nz",  (DL_FUNC) &nz,  13},
-  {"nz2", (DL_FUNC) &nz2, 12},
+  {"nz",  (DL_FUNC) &nz,  25},
+  {"nz2", (DL_FUNC) &nz2, 24},
   {"bn",  (DL_FUNC) &bn,  13},
   {"bn2", (DL_FUNC) &bn2, 12},
   {NULL, NULL, 0}
