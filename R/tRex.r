@@ -1,5 +1,4 @@
 
-
 .nz <- function(Contact, bias, n, repn, repb, argv0, argv1, argv2, nHL, vepsilon, thinning, gear, 
                 iter1, iter2, iter3, iter4, iter5,
                 block1_size, block2_size, block3_size, block4_size, block5_size,
@@ -611,7 +610,16 @@ get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
 #' @param block_size The size of each block.
 #' @param noverlap Number of loci that overlap between neighboring blocks.
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defauls to 1.
-#' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.
+#' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.\
+#' @param mcmc Number of HMC iterations
+#' @param burn Number of burn-ins for HMC.
+#' @param thinning Thinning rate. 
+#' @param jump The initial standard deviations for parameters updated via Metropolis-Hastings. May require some initial pilot runs to determine the optimal range.
+#' @param leapfrog.L The initial number of leapfrog steps for HMC.
+#' @param leapfrog.L The initial epsilon.
+#' @param target.accept The target acceptance rate. 
+#' @param tuning_control Tuning control for HMC. See vignette for details.
+#' @param method.type One of tRex, tPAM and bn.
 #' @return A list of the following elements: cutlist, result, noverlap, and block_size.
 #' @export
 Cut <- function(contact, 
@@ -684,7 +692,7 @@ Cut <- function(contact,
     )
   }
   
-  return(list(cutlist, result, noverlap, block_size))  # double check
+  return(list(cutlist, result, noverlap, block_size)) 
 }
 
 # run the paste part of cut and paste
@@ -1022,16 +1030,24 @@ Paste <- function(contact, cutresult, CPU){
 
 
 #' @title Run Cut-And-Paste
-#'
 #' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j.
 #' @param bias HiC bias matrix. An \eqn{n \times 3} matrix whose columns are: effective fragment information, GC content, and mappability.
-#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defaults to 1.
 #' @param breaks A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.
 #' @param block_size The size of each block.
-#' @param save_mcmc Whether to save posterior samples generated during Cut(). Defaults to FALSE.
-#' @return An \eqn{n \times 3} matrix of the estimated coordinates.
+#' @param noverlap Number of loci that overlap between neighboring blocks.
+#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defauls to 1.
+#' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.\
+#' @param mcmc Number of HMC iterations
+#' @param burn Number of burn-ins for HMC.
+#' @param thinning Thinning rate. 
+#' @param jump The initial standard deviations for parameters updated via Metropolis-Hastings. May require some initial pilot runs to determine the optimal range.
+#' @param leapfrog.L The initial number of leapfrog steps for HMC.
+#' @param leapfrog.L The initial epsilon.
+#' @param target.accept The target acceptance rate. 
+#' @param tuning_control Tuning control for HMC. See vignette for details.
+#' @param method.type One of tRex, tPAM and bn.
+#' @return A list of the following elements: cutlist, result, noverlap, and block_size.
 #' @export
-#' 
 CutAndPaste <- function(contact,
                         bias = NULL,
                         breaks = NULL,
