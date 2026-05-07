@@ -807,6 +807,7 @@ gsl_matrix_int *Lookup,*ijTable;
     
     for(i=0;i<ns;i++){
         s0=gsl_matrix_get(S,i,0);s1=gsl_matrix_get(S,i,1);s2=gsl_matrix_get(S,i,2);
+        sn0=s0;sn1=s1;sn2=s2;
         pv0=gsl_ran_gaussian (r, 1.0);pv1=gsl_ran_gaussian (r, 1.0);pv2=gsl_ran_gaussian (r, 1.0);
         current_K=-0.5*(pv0*pv0+pv1*pv1+pv2*pv2);
         efi=gsl_matrix_get(efl,i,0);
@@ -826,7 +827,7 @@ gsl_matrix_int *Lookup,*ijTable;
             gcj=gsl_matrix_get(gc,j,0);
             mapj=gsl_matrix_get(map,j,0);
             
-            met2=(s0-sj0)*(s0-sj0)+(s1-sj1)*(s1-sj1)+(s2-sj2)*(s2-sj2);
+            met2=(sn0-sj0)*(sn0-sj0)+(sn1-sj1)*(sn1-sj1)+(sn2-sj2)*(sn2-sj2);
             lmet=gsl_matrix_get(logMet,kk,0);
             iv=gsl_matrix_get(I,kk,0);
             part1=b0+b1*lmet+b2*(efi+efj)+b3*(gci+gcj)+b4*(mapi+mapj);
@@ -847,7 +848,7 @@ gsl_matrix_int *Lookup,*ijTable;
         }
         
         pv0+=0.5*epsilon*dw0;pv1+=0.5*epsilon*dw1;pv2+=0.5*epsilon*dw2;
-        sn0=s0;sn1=s1;sn2=s2;
+        
         for(jL=1;jL<HL;jL++){
             sn0+=epsilon*pv0;sn1+=epsilon*pv1;sn2+=epsilon*pv2;
             dw0=0.0;dw1=0.0;dw2=0.0;
@@ -875,6 +876,32 @@ gsl_matrix_int *Lookup,*ijTable;
                 
             }
             pv0+=epsilon*dw0;pv1+=epsilon*dw1;pv2+=epsilon*dw2;
+            
+        }
+        
+        sn0+=epsilon*pv0;sn1+=epsilon*pv1;sn2+=epsilon*pv2;
+        dw0=0.0;dw1=0.0;dw2=0.0;
+        for(k=1;k<howmany+1;k++){
+            kk=gsl_matrix_int_get(Lookup,i,k);
+            j=gsl_matrix_int_get(ijTable,i,k);
+            
+            sj0=gsl_matrix_get(S,j,0);
+            sj1=gsl_matrix_get(S,j,1);
+            sj2=gsl_matrix_get(S,j,2);
+            efj=gsl_matrix_get(efl,j,0);
+            gcj=gsl_matrix_get(gc,j,0);
+            mapj=gsl_matrix_get(map,j,0);
+            
+            met2=(sn0-sj0)*(sn0-sj0)+(sn1-sj1)*(sn1-sj1)+(sn2-sj2)*(sn2-sj2);
+            nlmet=0.5*log(met2);
+            iv=gsl_matrix_get(I,kk,0);
+            part1=b0+b1*nlmet+b2*(efi+efj)+b3*(gci+gcj)+b4*(mapi+mapj);
+            lambda=exp(part1);
+            if(lambda<10.0) factor=exp(lambda)/(exp(lambda)-1.0);
+            else factor=1.0;
+            dw0+=(iv-factor*lambda)*b1*(sn0-sj0)/met2;
+            dw1+=(iv-factor*lambda)*b1*(sn1-sj1)/met2;
+            dw2+=(iv-factor*lambda)*b1*(sn2-sj2)/met2;
             
         }
         
@@ -948,7 +975,9 @@ gsl_matrix_int *Lookup,*ijTable;
 }
 
 
-double zHMCupdateS2(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable)
+// unmasked does not mask the coordinates that are fixed by identifiability constraints
+
+double zHMCupdateS2_unmasked(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable)
 gsl_matrix *S,*Metric,*logMet,*X,*U,*I,*thetaX;
 gsl_matrix *beta,*lk,*osu;
 int ns,nI;
@@ -982,6 +1011,7 @@ gsl_matrix_int *Lookup,*ijTable;
     for(i=0;i<ns;i++){
         
         s0=gsl_matrix_get(S,i,0);s1=gsl_matrix_get(S,i,1);s2=gsl_matrix_get(S,i,2);
+        sn0=s0;sn1=s1;sn2=s2;
         xi=gsl_matrix_get(X,i,0);
         pv0=gsl_ran_gaussian (r, 1.0);pv1=gsl_ran_gaussian (r, 1.0);pv2=gsl_ran_gaussian (r, 1.0);
         current_K=-0.5*(pv0*pv0+pv1*pv1+pv2*pv2);
@@ -997,7 +1027,7 @@ gsl_matrix_int *Lookup,*ijTable;
             sj1=gsl_matrix_get(S,j,1);
             sj2=gsl_matrix_get(S,j,2);
             
-            met2=(s0-sj0)*(s0-sj0)+(s1-sj1)*(s1-sj1)+(s2-sj2)*(s2-sj2);
+            met2=(sn0-sj0)*(sn0-sj0)+(sn1-sj1)*(sn1-sj1)+(sn2-sj2)*(sn2-sj2);
             lmet=gsl_matrix_get(logMet,kk,0);
             uij=gsl_matrix_get(U,kk,0);
             iv=gsl_matrix_get(I,kk,0);
@@ -1017,7 +1047,6 @@ gsl_matrix_int *Lookup,*ijTable;
         }
         
         pv0+=0.5*epsilon*dw0;pv1+=0.5*epsilon*dw1;pv2+=0.5*epsilon*dw2;
-        sn0=s0;sn1=s1;sn2=s2;
         for(jL=1;jL<HL;jL++){
             sn0+=epsilon*pv0;sn1+=epsilon*pv1;sn2+=epsilon*pv2;
             dw0=0.0;dw1=0.0;dw2=0.0;dw3=0.0;
@@ -1047,8 +1076,270 @@ gsl_matrix_int *Lookup,*ijTable;
             
         }
         
+        sn0+=epsilon*pv0;sn1+=epsilon*pv1;sn2+=epsilon*pv2;
+        dw0=0.0;dw1=0.0;dw2=0.0;dw3=0.0;
+        for(k=1;k<howmany+1;k++){
+            kk=gsl_matrix_int_get(Lookup,i,k);
+            j=gsl_matrix_int_get(ijTable,i,k);
+            xj=gsl_matrix_get(X,j,0);
+            sj0=gsl_matrix_get(S,j,0);
+            sj1=gsl_matrix_get(S,j,1);
+            sj2=gsl_matrix_get(S,j,2);
+            
+            met2=(sn0-sj0)*(sn0-sj0)+(sn1-sj1)*(sn1-sj1)+(sn2-sj2)*(sn2-sj2);
+            nlmet=0.5*log(met2);
+            uij=gsl_matrix_get(U,kk,0);
+            iv=gsl_matrix_get(I,kk,0);
+            part1=b1*nlmet+xi+xj+uij;//+b2*(efi+efj)+b3*(gci+gcj)+b4*(mapi+mapj);
+            
+            lambda=exp(part1);
+            if(lambda<10.0) factor=exp(lambda)/(exp(lambda)-1.0);
+            else factor=1.0;
+            
+            dw0+=(iv-factor*lambda)*b1*(sn0-sj0)/met2;
+            dw1+=(iv-factor*lambda)*b1*(sn1-sj1)/met2;
+            dw2+=(iv-factor*lambda)*b1*(sn2-sj2)/met2;
+        }
+        
         pv0+=0.5*epsilon*dw0;pv1+=0.5*epsilon*dw1;pv2+=0.5*epsilon*dw2;
         new_K=-0.5*(pv0*pv0+pv1*pv1+pv2*pv2);
+        
+        lkIv=0.0;
+        for(k=1;k<howmany+1;k++){
+            kk=gsl_matrix_int_get(Lookup,i,k);
+            j=gsl_matrix_int_get(ijTable,i,k);
+            xj=gsl_matrix_get(X,j,0);
+            sj0=gsl_matrix_get(S,j,0);
+            sj1=gsl_matrix_get(S,j,1);
+            sj2=gsl_matrix_get(S,j,2);
+            
+            met=sqrt((sn0-sj0)*(sn0-sj0)+(sn1-sj1)*(sn1-sj1)+(sn2-sj2)*(sn2-sj2));
+            nlmet=log(met);
+            gsl_matrix_set(Metricnew,k,0,met);
+            gsl_matrix_set(logMetnew,k,0,nlmet);
+            
+            uij=gsl_matrix_get(U,kk,0);
+            iv=gsl_matrix_get(I,kk,0);
+            npart1=b1*nlmet+xi+xj+uij; //+b2*(efi+efj)+b3*(gci+gcj)+b4*(mapi+mapj);
+            nlambda=exp(npart1);
+            
+            if(nlambda<10.0) lkIv+=iv*npart1-log(exp(nlambda)-1.0);
+            else lkIv+=iv*npart1-nlambda;
+            
+        }
+        
+        delta=lkIv+new_K-lk0-current_K;
+        if(delta>=0.0){
+            gsl_matrix_set(S,i,0,sn0);gsl_matrix_set(S,i,1,sn1);gsl_matrix_set(S,i,2,sn2);
+            for(k=1;k<howmany+1;k++){
+                kk=gsl_matrix_int_get(Lookup,i,k);
+                met=gsl_matrix_get(Metricnew,k,0);
+                nlmet=gsl_matrix_get(logMetnew,k,0);
+                gsl_matrix_set(Metric,kk,0,met);
+                gsl_matrix_set(logMet,kk,0,nlmet);
+            }
+            accepted+=1.0;
+        }
+        else{
+            accept=gsl_rng_uniform (r);
+            if(accept<exp(delta)){
+                gsl_matrix_set(S,i,0,sn0);gsl_matrix_set(S,i,1,sn1);gsl_matrix_set(S,i,2,sn2);
+                for(k=1;k<howmany+1;k++){
+                    kk=gsl_matrix_int_get(Lookup,i,k);
+                    met=gsl_matrix_get(Metricnew,k,0);
+                    nlmet=gsl_matrix_get(logMetnew,k,0);
+                    gsl_matrix_set(Metric,kk,0,met);
+                    gsl_matrix_set(logMet,kk,0,nlmet);
+                }
+                accepted+=1.0;
+            }
+        }
+    }
+    
+    lk0=zgetlkI2(I,logMet,X,U,beta,ns,Lookup,ijTable);
+    gsl_matrix_set(lk,0,0,lk0);
+    gsl_matrix_free(Metricnew);
+    gsl_matrix_free(logMetnew);
+    //printf("accepted %f\n",accepted/ns);
+    
+    return accepted/ns;
+}
+
+double zHMCupdateS2(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable)
+gsl_matrix *S,*Metric,*logMet,*X,*U,*I,*thetaX;
+gsl_matrix *beta,*lk,*osu;
+int ns,nI;
+gsl_matrix_int *Lookup,*ijTable;
+{
+    gsl_matrix *Metricnew=gsl_matrix_calloc(ns,1);
+    gsl_matrix *logMetnew=gsl_matrix_calloc(ns,1);
+    double b1=gsl_matrix_get(beta,1,0);
+    
+    int i,j,k,kk,howmany,jL;
+    double met=0.0,met2=0.0,accept=0.0;
+    double lkIv=0.0,lk0=0.0;
+    double s0=0.0,s1=0.0,s2=0.0,sn0=0.0,sn1=0.0,sn2=0.0,sj0=0.0,sj1=0.0,sj2=0.0;
+    double xi=0.0,xj=0.0,uij=0.0;
+    
+    double factor=1.0;
+    
+    double npart1=0.0,part1=0.0;
+    double nlambda=1.0,lambda=0.0;
+    double lmet=0.0,nlmet=0.0;
+    
+    double accepted=0.0,delta=0.0;
+    double iv=0.0;
+    
+    
+    double pv0=0.0,pv1=0.0,pv2=0.0;
+    double dw0=0.0,dw1=0.0,dw2=0.0,dw3=0.0,dw4=0.0;
+    double current_K=0.0,new_K=0.0;
+    
+    
+    for(i=0;i<ns;i++){
+        
+        int free0 = 1, free1 = 1, free2 = 1;
+
+        if (i == 0) free0 = free1 = free2 = 0;
+        if (i == 1) free1 = 0;
+        if (i == ns-1) free1 = free2 = 0;
+
+        if (!free0 && !free1 && !free2) continue;
+
+        
+        s0=gsl_matrix_get(S,i,0);s1=gsl_matrix_get(S,i,1);s2=gsl_matrix_get(S,i,2);
+        sn0=s0;sn1=s1;sn2=s2;
+        xi=gsl_matrix_get(X,i,0);
+        
+        pv0 = free0 ? gsl_ran_gaussian(r,1.0) : 0.0;
+        pv1 = free1 ? gsl_ran_gaussian(r,1.0) : 0.0;
+        pv2 = free2 ? gsl_ran_gaussian(r,1.0) : 0.0;
+        
+        current_K = -0.5 * (
+            (free0 ? pv0*pv0 : 0.0) +
+            (free1 ? pv1*pv1 : 0.0) +
+            (free2 ? pv2*pv2 : 0.0)
+        );
+        
+        lk0=0.0;
+        dw0=0.0;dw1=0.0;dw2=0.0;dw3=0.0;dw4=0.0;
+        
+        howmany=gsl_matrix_int_get(Lookup,i,0);
+        for(k=1;k<howmany+1;k++){
+            kk=gsl_matrix_int_get(Lookup,i,k);
+            j=gsl_matrix_int_get(ijTable,i,k);
+            xj=gsl_matrix_get(X,j,0);
+            sj0=gsl_matrix_get(S,j,0);
+            sj1=gsl_matrix_get(S,j,1);
+            sj2=gsl_matrix_get(S,j,2);
+            
+            met2=(sn0-sj0)*(sn0-sj0)+(sn1-sj1)*(sn1-sj1)+(sn2-sj2)*(sn2-sj2);
+            lmet=gsl_matrix_get(logMet,kk,0);
+            uij=gsl_matrix_get(U,kk,0);
+            iv=gsl_matrix_get(I,kk,0);
+            part1=b1*lmet+xi+xj+uij; //+b2*(efi+efj)+b3*(gci+gcj)+b4*(mapi+mapj);
+            
+            lambda=exp(part1);
+            if(lambda<10.0) {
+                lk0+=iv*part1-log(exp(lambda)-1.0);
+                factor=exp(lambda)/(exp(lambda)-1.0);
+            }else {
+                lk0+=iv*part1-lambda;
+                factor=1.0;
+            }
+            dw0+=(iv-factor*lambda)*b1*(sn0-sj0)/met2;
+            dw1+=(iv-factor*lambda)*b1*(sn1-sj1)/met2;
+            dw2+=(iv-factor*lambda)*b1*(sn2-sj2)/met2;
+        }
+        
+        if (!free0) dw0=0;
+        if (!free1) dw1=0;
+        if (!free2) dw2=0;
+        
+        if (free0) pv0 += 0.5*epsilon*dw0;
+        if (free1) pv1 += 0.5*epsilon*dw1;
+        if (free2) pv2 += 0.5*epsilon*dw2;
+        
+        for(jL=1;jL<HL;jL++){
+            
+            if (free0) sn0 += epsilon*pv0;
+            if (free1) sn1 += epsilon*pv1;
+            if (free2) sn2 += epsilon*pv2;
+            
+            dw0=0.0;dw1=0.0;dw2=0.0;dw3=0.0;
+            for(k=1;k<howmany+1;k++){
+                kk=gsl_matrix_int_get(Lookup,i,k);
+                j=gsl_matrix_int_get(ijTable,i,k);
+                xj=gsl_matrix_get(X,j,0);
+                sj0=gsl_matrix_get(S,j,0);
+                sj1=gsl_matrix_get(S,j,1);
+                sj2=gsl_matrix_get(S,j,2);
+                
+                met2=(sn0-sj0)*(sn0-sj0)+(sn1-sj1)*(sn1-sj1)+(sn2-sj2)*(sn2-sj2);
+                nlmet=0.5*log(met2);
+                uij=gsl_matrix_get(U,kk,0);
+                iv=gsl_matrix_get(I,kk,0);
+                part1=b1*nlmet+xi+xj+uij;//+b2*(efi+efj)+b3*(gci+gcj)+b4*(mapi+mapj);
+                
+                lambda=exp(part1);
+                if(lambda<10.0) factor=exp(lambda)/(exp(lambda)-1.0);
+                else factor=1.0;
+                
+                dw0+=(iv-factor*lambda)*b1*(sn0-sj0)/met2;
+                dw1+=(iv-factor*lambda)*b1*(sn1-sj1)/met2;
+                dw2+=(iv-factor*lambda)*b1*(sn2-sj2)/met2;
+            }
+            
+            if (!free0) dw0=0;
+            if (!free1) dw1=0;
+            if (!free2) dw2=0;
+
+            if (free0) pv0 += epsilon*dw0;
+            if (free1) pv1 += epsilon*dw1;
+            if (free2) pv2 += epsilon*dw2;
+            
+        }
+        
+        if (free0) sn0 += epsilon*pv0;
+        if (free1) sn1 += epsilon*pv1;
+        if (free2) sn2 += epsilon*pv2;
+        
+        dw0=0.0;dw1=0.0;dw2=0.0;dw3=0.0;
+        for(k=1;k<howmany+1;k++){
+            kk=gsl_matrix_int_get(Lookup,i,k);
+            j=gsl_matrix_int_get(ijTable,i,k);
+            xj=gsl_matrix_get(X,j,0);
+            sj0=gsl_matrix_get(S,j,0);
+            sj1=gsl_matrix_get(S,j,1);
+            sj2=gsl_matrix_get(S,j,2);
+            
+            met2=(sn0-sj0)*(sn0-sj0)+(sn1-sj1)*(sn1-sj1)+(sn2-sj2)*(sn2-sj2);
+            nlmet=0.5*log(met2);
+            uij=gsl_matrix_get(U,kk,0);
+            iv=gsl_matrix_get(I,kk,0);
+            part1=b1*nlmet+xi+xj+uij;//+b2*(efi+efj)+b3*(gci+gcj)+b4*(mapi+mapj);
+            
+            lambda=exp(part1);
+            if(lambda<10.0) factor=exp(lambda)/(exp(lambda)-1.0);
+            else factor=1.0;
+            
+            dw0+=(iv-factor*lambda)*b1*(sn0-sj0)/met2;
+            dw1+=(iv-factor*lambda)*b1*(sn1-sj1)/met2;
+            dw2+=(iv-factor*lambda)*b1*(sn2-sj2)/met2;
+        }
+        
+        if (!free0) dw0=0;
+        if (!free1) dw1=0;
+        if (!free2) dw2=0;
+        
+        if (free0) pv0 += 0.5*epsilon*dw0;
+        if (free1) pv1 += 0.5*epsilon*dw1;
+        if (free2) pv2 += 0.5*epsilon*dw2;
+        new_K = -0.5 * (
+            (free0 ? pv0*pv0 : 0.0) +
+            (free1 ? pv1*pv1 : 0.0) +
+            (free2 ? pv2*pv2 : 0.0)
+        );
         
         lkIv=0.0;
         for(k=1;k<howmany+1;k++){
@@ -1622,7 +1913,6 @@ int ns,nI;
 }
 
 
-
 void nz(
         double *Contact,
         double *bias,
@@ -1636,6 +1926,18 @@ void nz(
         double *vepsilon,
         int *thinning,
         int *gear,
+        int *it1,
+        int *it2,
+        int *it3,
+        int *it4,
+        int *it5,
+        int *bs1,
+        int *bs2,
+        int *bs3,
+        int *bs4,
+        int *bs5,
+        int *max_cyc,
+        double *target_accept,
         double *result)
 {
     int ns=*n;
@@ -1646,6 +1948,24 @@ void nz(
     
     int rep_b=*repb;
     int rep_n=*repn;
+    
+    /* ---- unpack tuning parameters ---- */
+
+    int iter1 = *it1;
+    int iter2 = *it2;
+    int iter3 = *it3;
+    int iter4 = *it4;
+    int iter5 = *it5;
+    
+    int block1_size = *bs1;
+    int block2_size = *bs2;
+    int block3_size = *bs3;
+    int block4_size = *bs4;
+    int block5_size = *bs5;
+    
+    int max_cycle = *max_cyc;
+    
+    double target = *target_accept; // target acceptance rate
     
     int i,j,k,howmany,ii,jj,kk,uk;
     double v,Mi,line_t;
@@ -1681,9 +2001,9 @@ void nz(
     gsl_vector *collectorLK=gsl_vector_calloc(3);
     
     int  filter_factor=*thinning;
-    int  filter_n=rep_n/filter_factor;
+    int  filter_n=(rep_n + filter_factor - 1) / filter_factor;
     int ufilter_factor=filter_factor*10;
-    int ufilter_n=rep_n/ufilter_factor;
+    int ufilter_n=(rep_n + ufilter_factor - 1) / ufilter_factor;
     
 	gsl_matrix *accept=gsl_matrix_calloc(filter_n,4);
 	gsl_matrix *collectorS=gsl_matrix_calloc(filter_n,3*ns);
@@ -1737,8 +2057,6 @@ void nz(
 	for(i=0;i<ns;i++){
 	   gsl_matrix_int_set(Lookup,i,0,0);
 	}
-	//printf("Number of non-zero counts %d \n",nI);
-	
 	gsl_matrix *I=gsl_matrix_calloc(nI,1);
 	gsl_matrix *U=gsl_matrix_calloc(nI,1);
 
@@ -1790,7 +2108,6 @@ void nz(
 				gsl_matrix_int_set(ijTable,j,0,howmany);
 				
 				gsl_matrix_set(I,k,0,v);
-				//printf("%d %d %d %d %f\n",i,j,howmany,k,v);
 				k++;
 			}
 		}	
@@ -1828,8 +2145,6 @@ void nz(
 	
 	gsl_matrix_set(beta,0,0,initial*log(max_count));
 	gsl_matrix_set(beta,1,0,-2.0*initial);
-	
-	//printf("Initial beta0 beta1 %f %f X S %f\n",initial*log(max_count),-2.0*initial,line_t);
 	
 	gsl_matrix_set(thetaX,0,0,0.1);
 	gsl_matrix_set(thetaX,1,0,0.0);
@@ -1889,10 +2204,8 @@ void nz(
 	sv= zgetlkU(U,thetaX,nI);
     gsl_matrix_set(lk,2,0,sv);
     
-    gsl_matrix_set(beta,4,0,1.0);//printf("MAP is set off\n");
-    	//printf("%f %f %f\n",gsl_matrix_get(lk,0,0),gsl_matrix_get(lk,1,0),gsl_matrix_get(lk,2,0));
+    gsl_matrix_set(beta,4,0,1.0);
     
-//	printf("INITIALIZATION \n");
     //=====================================
     gsl_matrix_set(beta,1,0,0.0);
 	for(i=0;i<10000;i++){
@@ -1928,17 +2241,6 @@ void nz(
     if(rep_n>=100000 & rep_n<=1000000) ith=100000;
     if(rep_n>1000000) ith=500000;
     
-    int iter1 = 5000;
-    int iter2 = 2000;
-    int iter3 = 5000;
-    int iter4 = 2000;
-    int iter5 = 10000;
-    
-    int block1_size = 500;
-    int block2_size = 500;
-    int block3_size = 500;
-    int block4_size = 500;
-    int block5_size = 500;
     
     double kappa_init = 0.5; // learning rate for averaging
     
@@ -1976,19 +2278,12 @@ if(*gear == 1){
     Rprintf("Looking for jumping rules...\n");
     
 
-    int max_cycle = 10;
         
         for (int cycle = 0; cycle < max_cycle; cycle++) {
             
             // Parameters for adaptation
-            double target = 0.95;    // target acceptance rate
             double kappa = kappa_init;    // learning rate
             double kappa_decay = 0.95; //learning rate decay
-            
-            // reset log-epsilon?
-            
-            // log_eps = log(epsilon_init);
-            // epsilon  = epsilon_init;
             
             Rprintf("\n==================== Adaptation Cycle %d ====================\n", cycle+1);
         
@@ -2010,7 +2305,6 @@ if(*gear == 1){
             for (i = 0; i < n_iter; i++) {
                 v2=zupdateX2(X,U,I,logMet,beta,lk,ns,nI,osu,thetaX,Lookup,ijTable,iSigma,S,Metric);
                 v3=zupdateU(U,X,I,logMet,beta,osu,thetaX,lk,Lookup,ns,nI,ijTable,S);
-                // v0=zHMCupdateS2_mass(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
                 v0=zHMCupdateS2(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
             
                 enforce_identifiability(S, ns);
@@ -2109,8 +2403,8 @@ if(*gear == 1){
                     gsl_matrix_get(lk, 2, 0));
         
         
-            /* -------------------- Phase 2: Step-size + Mass adaptation -------------------- */
-            Rprintf("Phase 2: Mass + Step-size adaptation\n");
+            /* -------------------- Phase 2: Step-size adaptation -------------------- */
+            Rprintf("Phase 2: Run at current settings \n");
             
             kappa = kappa_init;
             
@@ -2130,7 +2424,6 @@ if(*gear == 1){
             for (i = 0; i < n_iter; i++) {
                 v2=zupdateX2(X,U,I,logMet,beta,lk,ns,nI,osu,thetaX,Lookup,ijTable,iSigma,S,Metric);
                 v3=zupdateU(U,X,I,logMet,beta,osu,thetaX,lk,Lookup,ns,nI,ijTable,S);
-                // v0=zHMCupdateS2_mass(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
                 v0=zHMCupdateS2(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
             
                 enforce_identifiability(S, ns);
@@ -2165,7 +2458,7 @@ if(*gear == 1){
             
                     // Report diagnostics
                     Rprintf("\n[Phase 2 | Cycle %d | Iter %5d]\n", cycle + 1, i + 1);
-                    Rprintf("  Adjusting : beta1 %.6f | sigma2_x %.6f | sigma2_u %.6f\n",
+                    Rprintf("  Reporting : beta1 %.6f | sigma2_x %.6f | sigma2_u %.6f\n",
                             gsl_matrix_get(beta, 1, 0),
                             gsl_matrix_get(thetaX, 0, 0),
                             gsl_matrix_get(thetaX, 2, 0));
@@ -2209,8 +2502,8 @@ if(*gear == 1){
                     gsl_matrix_get(lk, 2, 0));
             
         
-            /* -------------------- Phase 3: Freeze mass, stabilize epsilon -------------------- */
-            Rprintf("Phase 3: Freeze Mass, tune step size \n");
+            /* -------------------- Phase 3: Tune step size epsilon -------------------- */
+            Rprintf("Phase 3: Adjust step size \n");
             
             kappa = kappa_init;
             
@@ -2231,7 +2524,6 @@ if(*gear == 1){
             for (i = 0; i < n_iter; i++) {
                 v2=zupdateX2(X,U,I,logMet,beta,lk,ns,nI,osu,thetaX,Lookup,ijTable,iSigma,S,Metric);
                 v3=zupdateU(U,X,I,logMet,beta,osu,thetaX,lk,Lookup,ns,nI,ijTable,S);
-                // v0=zHMCupdateS2_mass(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
                 v0=zHMCupdateS2(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
             
                 enforce_identifiability(S, ns);
@@ -2265,12 +2557,6 @@ if(*gear == 1){
                     double acc_X  = acc_block_X  / block_size;
                     double acc_U  = acc_block_U  / block_size;
             
-                    // Step-size adaptation for S
-                    // if (acc_S < target){
-                    //     adapt_step_size(&epsilon, &log_eps, acc_S, target, &kappa, kappa_decay);
-                    //     adapt_step_num(&HL, acc_S);
-                    // }
-                    
                     dual_averaging_step_size_update(acc_S, target,
                       &log_eps, &log_eps_avg,
                       &Hbar, mu,
@@ -2346,7 +2632,6 @@ if(*gear == 1){
             for (i = 0; i < n_iter; i++) {
                 v2=zupdateX2(X,U,I,logMet,beta,lk,ns,nI,osu,thetaX,Lookup,ijTable,iSigma,S,Metric);
                 v3=zupdateU(U,X,I,logMet,beta,osu,thetaX,lk,Lookup,ns,nI,ijTable,S);
-                // v0=zHMCupdateS2_mass(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
                 v0=zHMCupdateS2(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
             
                 enforce_identifiability(S, ns);
@@ -2385,7 +2670,7 @@ if(*gear == 1){
             
                     // Report diagnostics
                     Rprintf("\n[Phase 4 | Cycle %d | Iter %5d]\n", cycle + 1, i + 1);
-                    Rprintf("  Adjusting : beta1 %.6f | sigma2_x %.6f | sigma2_u %.6f\n",
+                    Rprintf("  Reporting : beta1 %.6f | sigma2_x %.6f | sigma2_u %.6f\n",
                             gsl_matrix_get(beta, 1, 0),
                             gsl_matrix_get(thetaX, 0, 0),
                             gsl_matrix_get(thetaX, 2, 0));
@@ -2448,7 +2733,6 @@ if(*gear == 1){
             for (i = 0; i < n_iter; i++) {
                 v2=zupdateX2(X,U,I,logMet,beta,lk,ns,nI,osu,thetaX,Lookup,ijTable,iSigma,S,Metric);
                 v3=zupdateU(U,X,I,logMet,beta,osu,thetaX,lk,Lookup,ns,nI,ijTable,S);
-                // v0=zHMCupdateS2_mass(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
                 v0=zHMCupdateS2(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
             
                 enforce_identifiability(S, ns);
@@ -2530,7 +2814,12 @@ if(*gear == 1){
                     gsl_matrix_get(lk, 2, 0));
                     
             /* -------------------- Early stopping check -------------------- */
-            int good_S  = (mean_acc_S  > 0.80 && mean_acc_S  < 0.85);
+            double lower_target = target - 0.025;
+            double upper_target = target + 0.025;
+            if(lower_target < 0.0) lower_target = 0.0;
+            if(upper_target > 1.0) upper_target = 1.0;
+            
+            int good_S  = (mean_acc_S  > lower_target && mean_acc_S  < upper_target);
             int good_b1 = (mean_acc_b1 > 0.20 && mean_acc_b1 < 0.35);
             int good_X  = (mean_acc_X  > 0.20 && mean_acc_X  < 0.35);
             int good_U  = (mean_acc_U  > 0.20 && mean_acc_U  < 0.35);
@@ -2980,6 +3269,18 @@ void nz2(
         double *vepsilon,
         int *thinning,
         int *gear,
+        int *it1,
+        int *it2,
+        int *it3,
+        int *it4,
+        int *it5,
+        int *bs1,
+        int *bs2,
+        int *bs3,
+        int *bs4,
+        int *bs5,
+        int *max_cyc,
+        double *target_accept,
         double *result)
 {
     int ns=*n;
@@ -2990,6 +3291,22 @@ void nz2(
     
     int rep_b=*repb;
     int rep_n=*repn;
+    
+    int iter1 = *it1;
+    int iter2 = *it2;
+    int iter3 = *it3;
+    int iter4 = *it4;
+    int iter5 = *it5;
+    
+    int block1_size = *bs1;
+    int block2_size = *bs2;
+    int block3_size = *bs3;
+    int block4_size = *bs4;
+    int block5_size = *bs5;
+    
+    int max_cycle = *max_cyc;
+    
+    double target = *target_accept; // target acceptance rate
     
     int i,j,k,howmany,ii,jj,kk,uk;
     double v,Mi,line_t;
@@ -3028,9 +3345,9 @@ void nz2(
     gsl_vector *collectorLK=gsl_vector_calloc(3);
     
     int  filter_factor=*thinning;
-    int  filter_n=rep_n/filter_factor;
+    int  filter_n=(rep_n + filter_factor - 1) / filter_factor;
     int ufilter_factor=filter_factor*10;
-    int ufilter_n=rep_n/ufilter_factor;
+    int ufilter_n=(rep_n + ufilter_factor - 1) / ufilter_factor;
     
     gsl_matrix *accept=gsl_matrix_calloc(filter_n,4);
     gsl_matrix *collectorS=gsl_matrix_calloc(filter_n,3*ns);
@@ -3243,17 +3560,6 @@ void nz2(
     if(rep_n>=100000 & rep_n<=1000000) ith=100000;
     if(rep_n>1000000) ith=500000;
     
-    int iter1 = 5000;
-    int iter2 = 2000;
-    int iter3 = 5000;
-    int iter4 = 2000;
-    int iter5 = 10000;
-    
-    int block1_size = 500;
-    int block2_size = 500;
-    int block3_size = 500;
-    int block4_size = 500;
-    int block5_size = 500;
     
     double kappa_init = 0.5;
     
@@ -3288,12 +3594,10 @@ void nz2(
         
         Rprintf("Looking for jumping rules...\n");
 
-        int max_cycle = 10;
         
         for (int cycle = 0; cycle < max_cycle; cycle++) {
             
             // Parameters for adaptation
-            double target = 0.95;    // target acceptance rate
             double kappa = kappa_init;    // learning rate
             double kappa_decay = 0.95; //learning rate decay
             
@@ -3322,7 +3626,6 @@ void nz2(
             for (i = 0; i < n_iter; i++) {
                 v2=zupdateX2(X,U,I,logMet,beta,lk,ns,nI,osu,thetaX,Lookup,ijTable,iSigma,S,Metric);
                 v3=zupdateU(U,X,I,logMet,beta,osu,thetaX,lk,Lookup,ns,nI,ijTable,S);
-                // v0=zHMCupdateS2_mass(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
                 v0=zHMCupdateS2(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
             
                 enforce_identifiability(S, ns);
@@ -3421,8 +3724,8 @@ void nz2(
                     gsl_matrix_get(lk, 2, 0));
         
         
-            /* -------------------- Phase 2: Step-size + Mass adaptation -------------------- */
-            Rprintf("Phase 2: Mass + Step-size adaptation\n");
+            /* -------------------- Phase 2: Step-size stability run -------------------- */
+            Rprintf("Phase 2: Step-size stability run\n");
             
             kappa = kappa_init;
             
@@ -3442,7 +3745,6 @@ void nz2(
             for (i = 0; i < n_iter; i++) {
                 v2=zupdateX2(X,U,I,logMet,beta,lk,ns,nI,osu,thetaX,Lookup,ijTable,iSigma,S,Metric);
                 v3=zupdateU(U,X,I,logMet,beta,osu,thetaX,lk,Lookup,ns,nI,ijTable,S);
-                // v0=zHMCupdateS2_mass(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
                 v0=zHMCupdateS2(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
             
                 enforce_identifiability(S, ns);
@@ -3480,7 +3782,7 @@ void nz2(
             
                     // Report diagnostics
                     Rprintf("\n[Phase 2 | Cycle %d | Iter %5d]\n", cycle + 1, i + 1);
-                    Rprintf("  Adjusting : beta1 %.6f | sigma2_x %.6f | sigma2_u %.6f\n",
+                    Rprintf("  Reporting : beta1 %.6f | sigma2_x %.6f | sigma2_u %.6f\n",
                             gsl_matrix_get(beta, 1, 0),
                             gsl_matrix_get(thetaX, 0, 0),
                             gsl_matrix_get(thetaX, 2, 0));
@@ -3525,8 +3827,8 @@ void nz2(
                     gsl_matrix_get(lk, 2, 0));
             
         
-            /* -------------------- Phase 3: Freeze mass, stabilize epsilon -------------------- */
-            Rprintf("Phase 3: Freeze Mass, tune step size \n");
+            /* -------------------- Phase 3: Adjust step size epsilon -------------------- */
+            Rprintf("Phase 3: Adjust step size \n");
             
             kappa = kappa_init;
             
@@ -3545,7 +3847,6 @@ void nz2(
             for (i = 0; i < n_iter; i++) {
                 v2=zupdateX2(X,U,I,logMet,beta,lk,ns,nI,osu,thetaX,Lookup,ijTable,iSigma,S,Metric);
                 v3=zupdateU(U,X,I,logMet,beta,osu,thetaX,lk,Lookup,ns,nI,ijTable,S);
-                // v0=zHMCupdateS2_mass(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
                 v0=zHMCupdateS2(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
             
                 enforce_identifiability(S, ns);
@@ -3654,7 +3955,6 @@ void nz2(
             for (i = 0; i < n_iter; i++) {
                 v2=zupdateX2(X,U,I,logMet,beta,lk,ns,nI,osu,thetaX,Lookup,ijTable,iSigma,S,Metric);
                 v3=zupdateU(U,X,I,logMet,beta,osu,thetaX,lk,Lookup,ns,nI,ijTable,S);
-                // v0=zHMCupdateS2_mass(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
                 v0=zHMCupdateS2(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
             
                 enforce_identifiability(S, ns);
@@ -3680,7 +3980,6 @@ void nz2(
                 acc_block_U  += v3;  acc_phase_U  += v3;
                 
                 
-                
                 // every 'block_size' iterations report acceptance
                 if ((i + 1) % block_size == 0) {
                     double acc_S  = acc_block_S  / block_size;
@@ -3691,7 +3990,7 @@ void nz2(
             
                     // Report diagnostics
                     Rprintf("\n[Phase 4 | Cycle %d | Iter %5d]\n", cycle + 1, i + 1);
-                    Rprintf("  Adjusting : beta1 %.6f | sigma2_x %.6f | sigma2_u %.6f\n",
+                    Rprintf("  Reporting : beta1 %.6f | sigma2_x %.6f | sigma2_u %.6f\n",
                             gsl_matrix_get(beta, 1, 0),
                             gsl_matrix_get(thetaX, 0, 0),
                             gsl_matrix_get(thetaX, 2, 0));
@@ -3754,7 +4053,6 @@ void nz2(
             for (i = 0; i < n_iter; i++) {
                 v2=zupdateX2(X,U,I,logMet,beta,lk,ns,nI,osu,thetaX,Lookup,ijTable,iSigma,S,Metric);
                 v3=zupdateU(U,X,I,logMet,beta,osu,thetaX,lk,Lookup,ns,nI,ijTable,S);
-                // v0=zHMCupdateS2_mass(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
                 v0=zHMCupdateS2(S,Metric,logMet,X,U,I,thetaX,beta,lk,osu,ns,nI,Lookup,ijTable);
             
                 enforce_identifiability(S, ns);
@@ -3838,7 +4136,13 @@ void nz2(
                     
                     
             /* -------------------- Early stopping check -------------------- */
-            int good_S  = (mean_acc_S  > 0.80 && mean_acc_S  < 0.85);
+            
+            double lower_target = target - 0.025;
+            double upper_target = target + 0.025;
+            if(lower_target < 0.0) lower_target = 0.0;
+            if(upper_target > 1.0) upper_target = 1.0;
+            
+            int good_S  = (mean_acc_S  > lower_target && mean_acc_S  < upper_target);
             int good_b1 = (mean_acc_b1 > 0.20 && mean_acc_b1 < 0.35);
             int good_X  = (mean_acc_X  > 0.20 && mean_acc_X  < 0.35);
             int good_U  = (mean_acc_U  > 0.20 && mean_acc_U  < 0.35);
@@ -4177,7 +4481,6 @@ void nz2(
                 mean/=ufilter_n;
                 uk=ns*i-(i+1)*i*0.5+j-i-1;
                 gsl_matrix_set(U2R,0,uk,mean);
-                //Rprintf("(i,j,k,kk,uij) %d %d %d %d %f\n",i,j,kk,uk,mean);
             }
         }
                 
@@ -4208,8 +4511,6 @@ void nz2(
             mean/=filter_n;
             if(i==0) Rprintf("S : Leap.L Leap.e %d %f  acceptance rate %f\n",HL,epsilon,mean);
             if(i==1) Rprintf("beta1 : proposal jump %f acceptance rate %f\n",gsl_matrix_get(osu,0,0),mean);
-            //if(i==2) Rprintf("cov1 : proposal jump %f acceptance rate %f\n",gsl_matrix_get(osu,5,0),mean);
-            //if(i==3) Rprintf("cov2 : proposal jump %f acceptance rate%f\n",gsl_matrix_get(osu,6,0),mean);
         }
         k=0;
         for(i=0;i<filter_n;i++){
@@ -4276,4 +4577,3 @@ void nz2(
     return;
     
 }
-

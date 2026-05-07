@@ -42,6 +42,7 @@ dim(example_data)
 The optional bias matrix should be of dimension \eqn{n \times 3}. The 3 columns describe effective fragment information, GC content, and mappability for each locus, respectively. 
 
 ```{r bias}
+data(example_bias)
 head(example_bias)
 ```
 
@@ -54,10 +55,32 @@ For simplicity, we use the first 100 loci in our example
 Once the data is loaded, Cut-and-Paste algorithm can run separately by calling `Cut` and `Paste` in two separate steps.
 
 ```{r, eval=FALSE}
+
+
 example_data_short <- example_data[1:100, 1:100]
 example_data_short_bias <- example_bias[1:100:,]
-CutRes = Cut(contact = sim_hic, bias = sim_bias, block_size = 12, noverlap = 1, CPU = 5)
-PasteRes = Paste(contact = sim_hic, cutresult = CutRes, CPU = 5)
+control_trex <- list(
+  iter = c(500, 500, 500, 500, 500),
+  block_size = c(10, 10, 10, 10, 10),
+  max_cycle = 1
+)
+
+# these examples run on a 100x100 contact matrix 
+
+# should take around 21 seconds to run this cut with 1 CPU on 100 x 100 contact
+CutRes = Cut(contact = example_data_short, 
+            block_size = 25, 
+            noverlap = 1, 
+            CPU = 1,
+            mcmc = 500,
+            burn = 500,
+            thinning = 1,
+            target.accept = 0.95,
+            tuning_control = control_trex)
+
+PasteRes = Paste(contact = example_data_short,  
+                cutresult = CutRes, 
+                CPU = 1)
 ```
 
 Alternatively, it can be run in a single step by calling `CutAndPaste`
