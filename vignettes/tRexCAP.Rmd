@@ -1,6 +1,7 @@
 ---
 title: "tRexCAP: A Divide and Conquer Strategy for Recapitulating Whole Genome 3D Structure Using Hi-C Data"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{tRexCAP}
   %\VignetteEngine{knitr::rmarkdown}
@@ -15,11 +16,11 @@ knitr::opts_chunk$set(
 ```
 
 # Introduction
-The spatial organization of the genome is a critical determinant of cellular function, yet its complex architecture cannot be fully captured through linear sequencing alone. Hi-C technology overcomes this limitation by capturing chromosomal conformation information between loci. Translating the resulting 2D proximity matrices into physical 3D models enables the identification of spatial "neighborhoods," revealing how non-coding genetic variants exert regulatory influence over vast genomic distances.
+The spatial organization of the genome is a critical determinant of cellular function, yet its complex architecture cannot be fully captured through linear sequencing alone. Hi-C technology overcomes this limitation by capturing chromosomal conformational information between loci. Translating the resulting 2D proximity matrices into physical 3D models enables the identification of spatial "neighborhoods," revealing how non-coding genetic variants exert regulatory influence over vast genomic distances.
 
-tRex-CAP (Cut and Paste) is designed to reconstruct whole-genome three-dimensional structures from Hi-C data. The method employs a divide-and-conquer strategy to manage the complexity of genomic data: first, each chromosome is partitioned into $n$ overlapping blocks; second, the tRex algorithm reconstitutes the 3D structure of each block independently; finally, these local structures are "pasted" together to form a global model while preserving the structural rigidity of the individual blocks.
+tRex-CAP (Cut and Paste) is designed to reconstruct whole-genome, three-dimensional structures from Hi-C data. The method employs a divide-and-conquer strategy to manage the complexity of genomic data: first, each chromosome is partitioned into n overlapping blocks; second, the tRex algorithm reconstitutes the 3D structure of each block independently; and finally, these local structures are "pasted" together to form a global model while preserving the structural rigidity of the individual blocks.
 
-In this pacakge, we provide the following main functions:
+In this pacakge, we provide the following functions:
 
 * Cut
 * Paste
@@ -30,12 +31,12 @@ We illustrate the usage of these functions in the following sections.
 
 # tRex-CAP
 
-tRex-CAP algorithm consists of two steps. The first step is `Cut` where the whole contact matrix is partitioned into $n$ blocks (with overlaps), and tRex algorithm is run on each block to obtain their own structure The second step is `Paste` where we merge all blocks into one structure, using isometric transformations to preserve the structure of each block, while matching them at the overlapping loci.
+tRex-CAP algorithm consists of two steps. The first step is `Cut` where the entire contact matrix is partitioned into n blocks (with overlaps), and tRex algorithm is run on each block to obtain its respective structure The second step is `Paste` where all blocks are merged into one structure using isometric transformations to preserve the structure of each block while matching them at the overlapping loci.
 
 ## Cut
 
 `Cut` function requries the following arguments:
-* Contact: The matrix should be \eqn{n \times n} and symmetric, where the (i, j) entry of the matrix is the count of interactions between loci i and j. The diagnoal elements of the matrix should be 0. An example contact matrix of n=1000 loci simulated with Poisson model with random effects can be loaded by calling `data(example_data)`.
+* Contact: The matrix should be n by n and symmetric, where the (i, j) entry of the matrix is the count of interactions between loci i and j. The diagnoal elements of the matrix should be 0. An example contact matrix of n=1000 loci simulated with Poisson model with random effects can be loaded by calling `data(example_data)`.
 
 ```{r setup}
 library(tRexCAP)
@@ -49,7 +50,7 @@ example_data[1:5,1:5]
 
 Other other arguments are optional. 
 
-* bias: The optional bias matrix should be of dimension \eqn{n \times 3}. The 3 columns describe effective fragment information, GC content, and mappability for each locus, respectively. 
+* bias: The optional bias matrix should be of dimension n by 3. The 3 columns describe effective fragment information, GC content, and mappability for each locus, respectively. 
 
 ```{r bias}
 data(example_bias)
@@ -62,7 +63,7 @@ head(example_bias)
 * mcmc, burn, Number of HMC iterations and burn-ins, respectively.
 * thinning: Thinning rate. For example, a thinning rate of 10 means every 10th HMC iteration is saved as posterior samples.
 * jump: The initial standard deviations for parameters updated via Metropolis-Hastings.
-* leapfrog.L, leapfrog.e The initial number of leapfrog steps and intial epsilon  for HMC.
+* leapfrog.L, leapfrog.e The initial number of leapfrog steps and intial epsilon for HMC.
 * target.accept The target acceptance rate. 
 * tuning_control Tuning control for HMC. See below for details.
 * method.type One of tRex, tPAM and bn.
@@ -70,7 +71,7 @@ head(example_bias)
 ## Tuning Control
 We do a five phase tuning. Phase 1 adapts the number of steps (L) and the step size (epsilon), phase 2 runs the chain, phase 3 adapts the step size (epsilon), phase 4 runs the chain, and phase 5 adapts the Metropolis-Hasting jump parameters.
 
-The tuning control is a list of iter, block_size and max_cycle. iter controls the number of iterations for each phase. block_size here controls how often acceptances rates are reported and hyperparameter adjustments occur according to parameter acceptance rates. max_cycle determines how many times we go through the phases. Between cycles, the structure is reset but hyperparameter settings are retained. By default, the settings for tuning_control is retained. Here is an example of tuning control we used for the sample data.
+The tuning control is a list comprising of `iter`, `block_size` and `max_cycle`. The `iter` parameter controls the number of iterations for each phase. Here, the `block_size` parameter controls how often acceptance rates are reported and how frequently hyperparameter adjustments occur according to parameter acceptance rates. The `max_cycle` parameter determines how many times the algorithm goes through the phases. Between cycles, the structure is reset but hyperparameter settings are retained. By default, the settings for `tuning_control` are retained. Below is an example of the `tuning_control` used for the sample data.
 
 ```{r controls}
 control_trex <- list(
@@ -94,7 +95,7 @@ control_trex <- list(
 * CPU:  Integer specifying the number of cores for parallel MCMC execution.
 
 ### Output
-`Paste` returns an \eqn{n \times 3} matrix of the estimated coordinates.
+`Paste` returns an n by 3 matrix of the estimated coordinates.
 
 ### Example
 For simplicity, we use the first 100 loci in our example with no bias matrix.
@@ -113,21 +114,25 @@ CutRes <- Cut(
             tuning_control = control_trex)
 ```
 
-On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took 14.7 seconds to execute the above command.
+On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took 14.7 seconds to execute the command above.
 
-To paste the results, 
+To paste the results, run the following script:
 ```{r, results = 'hide', message = FALSE}
 PasteRes <- Paste(
               contact = example_data_short,  
               cutresult = CutRes, 
               CPU = 1)
+```
+
+The result should be an n by 3 matrix.
+```{r}
 head(PasteRes)
 ```
 
-On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took 23.8 seconds to execute the above command.
+On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took 23.8 seconds to execute the command above.
 
 ## CutAndPaste
-We also wrapped `Cut` and `Paste` into a single call, `CutAndPaste`. The arguments for `CutAndPaste` is the same as `Cut`. It runs `Cut` and then `Paste` sequentially, and returns the coordinates matrix.
+We also wrapped `Cut` and `Paste` into a single function call, `CutAndPaste`. The arguments for `CutAndPaste` are the same as `Cut`. It runs `Cut` and then `Paste` sequentially, and returns the coordinates matrix.
 
 ```{r, eval=FALSE}
 CAPRes <- CutAndPaste(
@@ -146,8 +151,10 @@ draw_struct(PasteRes)
 
 # Simulation
 Here we attach our script for data simulation.
+
 ## Simulation Function
-For a known structure S, we simulate the data based on either Poisson or negative binomial distrubtion. Possible parameters includes pi for zero inflation percentage, p for overdispersion paramter for negative binomial distribution, and random for the presence of random effect. 
+For a known structure `S`, we simulate the data based on either Poisson or negative binomial distrubtion. Possible parameters includes `pi` for zero inflation percentage, `p` for overdispersion paramter for negative binomial distribution, and `random` for the presence of random effect. 
+
 ```{r}
 gen_contact <- function(S, family = "poisson", pi = 0, p = 0.75, random=FALSE) {
     # S matrix: coordiantes of the loci
