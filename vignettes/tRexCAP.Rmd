@@ -28,77 +28,221 @@ In this pacakge, we provide the following main functions:
 
 We illustrate the usage of these functions in the following sections.
 
-# Example Data
+# tRex-CAP
 
-An example contact matrix of n=1000 loci simulated with Poisson model with random effects can be loaded by calling `data(example_data)`. The matrix should be \eqn{n \times n} and symmetric, where the (i, j) entry of the matrix is the count of interactions between loci i and j. The diagnoal elements of the matrix should be 0.
+tRex-CAP algorithm consists of two steps. The first step is `Cut` where the whole contact matrix is partitioned into $n$ blocks (with overlaps), and tRex algorithm is run on each block to obtain their own structure The second step is `Paste` where we merge all blocks into one structure, using isometric transformations to preserve the structure of each block, while matching them at the overlapping loci.
 
+## Cut
+
+`Cut` function requries the following arguments:
+* Contact: The matrix should be \eqn{n \times n} and symmetric, where the (i, j) entry of the matrix is the count of interactions between loci i and j. The diagnoal elements of the matrix should be 0. An example contact matrix of n=1000 loci simulated with Poisson model with random effects can be loaded by calling `data(example_data)`.
 
 ```{r setup}
 library(tRexCAP)
 data(example_data)
 dim(example_data)
+example_data[1:5,1:5]
 ```
 
-The optional bias matrix should be of dimension \eqn{n \times 3}. The 3 columns describe effective fragment information, GC content, and mappability for each locus, respectively. 
+* block_size: The size of each block.
+* noverlap: Number of loci that overlap between neighboring blocks.
+
+Other other arguments are optional. 
+
+* bias: The optional bias matrix should be of dimension \eqn{n \times 3}. The 3 columns describe effective fragment information, GC content, and mappability for each locus, respectively. 
 
 ```{r bias}
 data(example_bias)
 head(example_bias)
 ```
 
+* breaks: A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.
+* CPU: Integer specifying the number of cores for parallel MCMC execution. 
+* save_mcmc: Whether to save the posterior samples generated during the MCMC step. 
+* mcmc, burn, Number of HMC iterations and burn-ins, respectively.
+* thinning: Thinning rate. For example, a thinning rate of 10 means every 10th HMC iteration is saved as posterior samples.
+* jump: The initial standard deviations for parameters updated via Metropolis-Hastings.
+* leapfrog.L, leapfrog.e The initial number of leapfrog steps and intial epsilon  for HMC.
+* target.accept The target acceptance rate. 
+* tuning_control Tuning control for HMC. See below for details.
+* method.type One of tRex, tPAM and bn.
 
-# tRex-CAP
-## Cut 
+## Tuning Control
+We do a five phase tuning. Phase 1 adapts the number of steps (L) and the step size (epsilon), phase 2 runs the chain, phase 3 adapts the step size (epsilon), phase 4 runs the chain, and phase 5 adapts the Metropolis-Hasting jump parameters.
 
-For simplicity, we use the first 100 loci in our example
+The tuning control is a list of iter, block_size and max_cycle. iter controls the number of iterations for each phase. block_size here controls how often acceptances rates are reported and hyperparameter adjustments occur according to parameter acceptance rates. max_cycle determines how many times we go through the phases. Between cycles, the structure is reset but hyperparameter settings are retained. By default, the settings for tuning_control is retained. Here is an example of tuning control we used for the sample data.
 
-Once the data is loaded, Cut-and-Paste algorithm can run separately by calling `Cut` and `Paste` in two separate steps.
-
-```{r, eval=FALSE}
-
-
-example_data_short <- example_data[1:100, 1:100]
-example_data_short_bias <- example_bias[1:100:,]
+```{r controls}
 control_trex <- list(
   iter = c(500, 500, 500, 500, 500),
   block_size = c(10, 10, 10, 10, 10),
   max_cycle = 1
 )
-
-# these examples run on a 100x100 contact matrix 
-
-# should take around 21 seconds to run this cut with 1 CPU on 100 x 100 contact
-CutRes = Cut(contact = example_data_short, 
-            block_size = 25, 
-            noverlap = 1, 
-            CPU = 1,
-            mcmc = 500,
-            burn = 500,
-            thinning = 1,
-            target.accept = 0.95,
-            tuning_control = control_trex)
-
-PasteRes = Paste(contact = example_data_short,  
-                cutresult = CutRes, 
-                CPU = 1)
 ```
 
-Alternatively, it can be run in a single step by calling `CutAndPaste`
-```{r, eval=FALSE}
-CAPRes = CutAndPaste(contact = sim_hic, block_size = 12, noverlap = 1, CPU = 5)
-```
+### Output
+
+`Cut` function returns the sturcture of each block and other parameters intended for `Paste`.
 
 ## Paste
 
+`Pates` function requires the following arguments:
+
+
+* contact: The same contact matrix used in `Cut`.
+* cutresult: The result from a Cut() call.
+* CPU:  Integer specifying the number of cores for parallel MCMC execution.
+
+### Output
+`Paste` returns an \eqn{n \times 3} matrix of the estimated coordinates.
+
+### Example
+For simplicity, we use the first 100 loci in our example with no bias matrix.
+
+```{r, results = 'hide', message = FALSE}
+example_data_short <- example_data[1:100, 1:100]
+CutRes <- Cut(
+            contact = example_data_short, 
+            block_size = 25, 
+            noverlap = 1, 
+            CPU = 1,
+            mcmc = 1000,
+            burn = 1000,
+            thinning = 1,
+            target.accept = 0.95,
+            tuning_control = control_trex)
+```
+
+On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took 14.7 seconds to execute the above command.
+
+To paste the results, 
+```{r}
+PasteRes <- Paste(
+              contact = example_data_short,  
+              cutresult = CutRes, 
+              CPU = 1)
+```
+
+On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took 23.8 seconds to execute the above command.
+
 ## CutAndPaste
-## Results 
+We also wrapped `Cut` and `Paste` into a single call, `CutAndPaste`. The arguments for `CutAndPaste` is the same as `Cut`. It runs `Cut` and then `Paste` sequentially, and returns the coordinates matrix.
 
-## Visualization
+```{r, eval=FALSE}
+CAPRes <- CutAndPaste(
+            contact = sim_hic,
+            block_size = 12,
+            noverlap = 1,
+            CPU = 5)
+```
 
-# Computation Cost
+# Visualization
+Once we obtain the coordinate matrix, we can plot the 3D structure with `draw_struct`
 
-# Example 
+```{r}
+draw_struct(PasteRes)
+```
 
-# Versions
+# Simulation
+Here we attach our script for data simulation.
+## Simulation Function
+For a known structure S, we simulate the data based on either Poisson or negative binomial distrubtion. Possible parameters includes pi for zero inflation percentage, p for overdispersion paramter for negative binomial distribution, and random for the presence of random effect. 
+```{r}
+gen_contact <- function(S, family = "poisson", pi = 0, p = 0.75, random=FALSE) {
+    # S matrix: coordiantes of the loci
+    # family: poisson or NB
+    # pi: zero inflation percentage: 0, 0.05, 0.15, 0.25, or 0.5
+    # p overdispersion factor for NB: 0.5, 0.75, or 0.9
+    # family='poisson' or 'nb'
+    ns <- nrow(S)
+    nI <- ns * (ns - 1) / 2
+    alpha0 <- 4  # original is 2
+    alpha1 <- -1.2
+    dist_S <- dist(S)
+    c1 <- matrix(nrow = ns, ncol = ns, 0)
+    # dist is the lower triangle matrix
+    # mu vector
+    #no random component
+    mu <- exp(alpha0 + alpha1 * log(dist_S))
+
+    if (random) {
+        NoiseU2 <- rnorm(nI, sd = sqrt(0.03))
+        X <- rnorm(ns, sd = sqrt(0.1))
+        temp <- matrix(rep(X, ns), ncol = ns, byrow = T)
+        X_mat <- as.vector((temp + t(temp))[lower.tri(temp)])
+        mu <- mu + X_mat + NoiseU2
+        mu[mu < 1e-6] <- 1e-6
+    }
+
+    if (family == "poisson") {
+        counts <- rzipois(nI, lambda = mu, pstr0 = pi)
+    } else {
+        counts <- rzinegbin(nI, size = mu * p / (1 - p), munb = mu, pstr0 = pi)
+    }
+    c1[lower.tri(c1)] <- counts
+    return(c1)
+}
+```
+
+## Simulation
+For the structure we used the first 500 and the last 500 loci from Lieberman-Aiden et al., 2009. The estimated whole genome structure is available in `data(lieberman)`.
+
+```{r, eval = FALSE}
+require(VGAM)
+require(reticulate)
+require(splines)
+# turn off scientific notation
+options(scipen = 999)
+data(lieberman)
+N <- nrow(lieberman)
+# in our simulation we take the first 500 coordinates and last 500 coordinates of the leibermanS
+S <- lieberman[c(1:500, (N - 499):N),]
+
+# settings
+family <- "poisson" # or nb for negative binomial 
+pi <- 0 # zero-inflation parameter: options used in manuscript: 0, 0.05, 0.15, 0.25, 0.5
+p <- 0.75 # overdispersion parameter: options used in manuscript: 0.5, 0.75, 0.9
+random <- TRUE # random effect: if TRUE use random effect terms if FALSE do not use
+nreps <- 1  # we set nreps to 100 in tRex-cap manuscript
+seed = 2  # seed used in manuscript
+cat("Simulating ", family, " with pi=", pi, ", p=", p, " random: ", random, " nreps = ", nreps, "\n", sep="")
+set.seed(seed)
+
+# build an informative output directory name
+if (family == "poisson") {
+  outdir <- paste0(
+    "../siml_data/",
+    family,
+    "_pi_", pi,
+    ifelse(random, "_ran", "_noran")
+  )
+} else {
+  outdir <- paste0(
+    "../siml_data/",
+    family,
+    "_pi_", pi,
+    "_p_", p,
+    ifelse(random, "_ran", "_noran")
+  )
+}
+
+# create it if it doesn't exist
+if (!dir.exists(outdir)) {
+  dir.create(outdir, recursive = TRUE)
+}
+
+
+for (i in 1:nreps) {
+    contact <- gen_contact(S, family = family, pi = pi, p = p, random = random)
+    contact <- contact + t(contact)
+    trex_name <- file.path(outdir, paste0("trex_", i, ".txt"))
+    write.table(contact, trex_name, row.names = FALSE, col.names = FALSE, quote = FALSE)
+}
+
+# Software Versions
+
+```{r}
+sessioninfo::package_info()
+```
 
 # Reference

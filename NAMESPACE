@@ -3,7 +3,7 @@
 export(Cut)
 export(CutAndPaste)
 export(Paste)
-export(draw.struct)
+export(draw_struct)
 export(get.breakpoints)
 export(get.param)
 export(get.sample)

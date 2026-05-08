@@ -374,7 +374,7 @@ function(contact,
 #' @return A matrix of 10,000 rows. 1st, 2nd, and 3rd columns corresponds to x,y, and z coordinates. Each row corresponds to a posterior sample  of coordinates.
 #' @export
 #' 
-get.sample=function(psample,i){
+get.sample <- function(psample,i){
 	where=c(3*(i-1)+1,3*(i-1)+2,3*i)
 	S=psample[[1]]
 	Si=S[,where]
@@ -439,7 +439,7 @@ summarize.struct=function(psample,method=c("Mode","Mean","MAP")){
 #' @param coordinates A matrix of three columns corresponding to x, y, and z coordinates.
 #' @return The figure.
 #' @export
-draw.struct=function(coordinates){
+draw_struct <- function(coordinates){
 	x=coordinates[,1]
 	y=coordinates[,2]
 	z=coordinates[,3]
@@ -450,14 +450,12 @@ draw.struct=function(coordinates){
 	df$size=2
 
 
-	plot3d(df$x, df$y, df$z, col=df$color, size=df$size, type='s',lwd=1,xlab="",ylab="",zlab="")
+	rgl::plot3d(df$x, df$y, df$z, col=df$color, size=df$size, type='s',lwd=1,xlab="",ylab="",zlab="")
 
 	for(i in 1:(n-1)){
-		segments3d(df$x[i:(i+1)],df$y[i:(i+1)],df$z[i:(i+1)],col="brown",lwd=3)
+		rgl::segments3d(df$x[i:(i+1)],df$y[i:(i+1)],df$z[i:(i+1)],col="brown",lwd=3)
 	}
 }
-
-
 
 
 mctrex <- function(k, 
@@ -610,7 +608,7 @@ get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
 #' @param block_size The size of each block.
 #' @param noverlap Number of loci that overlap between neighboring blocks.
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defauls to 1.
-#' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.\
+#' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.
 #' @param mcmc Number of HMC iterations
 #' @param burn Number of burn-ins for HMC.
 #' @param thinning Thinning rate. 
@@ -809,7 +807,7 @@ Paste_orig <- function(contact, cutresult, CPU){
   FS12 <- rbind(S1[1:(fixed_point - 1), ], nS2)
   likelihood <- rbind(likelihood, c(k+1, res))
   
-  return(list(FS12, likelihood))
+  return(FS12)
 }
 
 #' @title Run the paste part of cut and paste
@@ -1023,7 +1021,7 @@ Paste <- function(contact, cutresult, CPU){
       likelihood[[length(likelihood) + 1]] <- apg_result$lk
     }
     
-    return(list(FS12, likelihood))
+    return(FS12)
 
 }
 
@@ -1036,13 +1034,13 @@ Paste <- function(contact, cutresult, CPU){
 #' @param block_size The size of each block.
 #' @param noverlap Number of loci that overlap between neighboring blocks.
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defauls to 1.
-#' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.\
+#' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.
 #' @param mcmc Number of HMC iterations
 #' @param burn Number of burn-ins for HMC.
 #' @param thinning Thinning rate. 
 #' @param jump The initial standard deviations for parameters updated via Metropolis-Hastings. May require some initial pilot runs to determine the optimal range.
 #' @param leapfrog.L The initial number of leapfrog steps for HMC.
-#' @param leapfrog.L The initial epsilon.
+#' @param leapfrog.e The initial epsilon.
 #' @param target.accept The target acceptance rate. 
 #' @param tuning_control Tuning control for HMC. See vignette for details.
 #' @param method.type One of tRex, tPAM and bn.
@@ -1093,7 +1091,7 @@ CutAndPaste <- function(contact,
   )
   paste = Paste(contact = contact, cutresult=cuts, CPU=CPU)
   
-  return(list(cuts, paste))
+  return(paste)
   
 }
 

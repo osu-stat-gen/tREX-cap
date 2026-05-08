@@ -41,6 +41,22 @@ Cut(
 \item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Defauls to 1.}
 
 \item{save_mcmc}{Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.}
+
+\item{mcmc}{Number of HMC iterations}
+
+\item{burn}{Number of burn-ins for HMC.}
+
+\item{thinning}{Thinning rate.}
+
+\item{leapfrog.L}{The initial epsilon.}
+
+\item{target.accept}{The target acceptance rate.}
+
+\item{tuning_control}{Tuning control for HMC. See vignette for details.}
+
+\item{method.type}{One of tRex, tPAM and bn.}
+
+\item{jump}{The initial standard deviations for parameters updated via Metropolis-Hastings. May require some initial pilot runs to determine the optimal range.}
 }
 \value{
 A list of the following elements: cutlist, result, noverlap, and block_size.
