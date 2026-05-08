@@ -24,7 +24,7 @@ In this pacakge, we provide the following main functions:
 * Cut
 * Paste
 * CutAndPaste
-* DrawStucture
+* draw_struct
 
 We illustrate the usage of these functions in the following sections.
 
@@ -116,11 +116,12 @@ CutRes <- Cut(
 On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took 14.7 seconds to execute the above command.
 
 To paste the results, 
-```{r}
+```{r, results = 'hide', message = FALSE}
 PasteRes <- Paste(
               contact = example_data_short,  
               cutresult = CutRes, 
               CPU = 1)
+head(PasteRes)
 ```
 
 On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took 23.8 seconds to execute the above command.
@@ -238,6 +239,7 @@ for (i in 1:nreps) {
     trex_name <- file.path(outdir, paste0("trex_", i, ".txt"))
     write.table(contact, trex_name, row.names = FALSE, col.names = FALSE, quote = FALSE)
 }
+```
 
 # Software Versions
 

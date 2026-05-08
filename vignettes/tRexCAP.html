@@ -364,7 +364,7 @@ blocks.</p>
 <li>Cut</li>
 <li>Paste</li>
 <li>CutAndPaste</li>
-<li>DrawStucture</li>
+<li>draw_struct</li>
 </ul>
 <p>We illustrate the usage of these functions in the following
 sections.</p>
@@ -498,11 +498,7 @@ matrix.</p>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>              <span class="at">contact =</span> example_data_short,  </span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>              <span class="at">cutresult =</span> CutRes, </span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>              <span class="at">CPU =</span> <span class="dv">1</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; k = 1 </span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; Fixed Point 26 </span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; k = 3 </span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; Fixed Point 27 </span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; Final: Fixed Point 51</span></span></code></pre></div>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="fu">head</span>(PasteRes)</span></code></pre></div>
 <p>On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took
 23.8 seconds to execute the above command.</p>
 </div>
@@ -575,60 +571,58 @@ Lieberman-Aiden et al., 2009. The estimated whole genome structure is
 available in <code>data(lieberman)</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">require</span>(VGAM)</span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">require</span>(reticulate)</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; Loading required package: reticulate</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt; Warning in library(package, lib.loc = lib.loc, character.only = TRUE,</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; logical.return = TRUE, : there is no package called &#39;reticulate&#39;</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="fu">require</span>(splines)</span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co"># turn off scientific notation</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="fu">data</span>(lieberman)</span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">nrow</span>(lieberman)</span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co"># in our simulation we take the first 500 coordinates and last 500 coordinates of the leibermanS</span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>S <span class="ot">&lt;-</span> lieberman[<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">500</span>, (N <span class="sc">-</span> <span class="dv">499</span>)<span class="sc">:</span>N),]</span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a></span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co"># settings</span></span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>family <span class="ot">&lt;-</span> <span class="st">&quot;poisson&quot;</span> <span class="co"># or nb for negative binomial </span></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>pi <span class="ot">&lt;-</span> <span class="dv">0</span> <span class="co"># zero-inflation parameter: options used in manuscript: 0, 0.05, 0.15, 0.25, 0.5</span></span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fl">0.75</span> <span class="co"># overdispersion parameter: options used in manuscript: 0.5, 0.75, 0.9</span></span>
-<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>random <span class="ot">&lt;-</span> <span class="cn">TRUE</span> <span class="co"># random effect: if TRUE use random effect terms if FALSE do not use</span></span>
-<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>nreps <span class="ot">&lt;-</span> <span class="dv">1</span>  <span class="co"># we set nreps to 100 in tRex-cap manuscript</span></span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>seed <span class="ot">=</span> <span class="dv">2</span>  <span class="co"># seed used in manuscript</span></span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Simulating &quot;</span>, family, <span class="st">&quot; with pi=&quot;</span>, pi, <span class="st">&quot;, p=&quot;</span>, p, <span class="st">&quot; random: &quot;</span>, random, <span class="st">&quot; nreps = &quot;</span>, nreps, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>, <span class="at">sep=</span><span class="st">&quot;&quot;</span>)</span>
-<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt; Simulating poisson with pi=0, p=0.75 random: TRUE nreps = 1</span></span>
-<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="fu">set.seed</span>(seed)</span>
-<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a></span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co"># build an informative output directory name</span></span>
-<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="cf">if</span> (family <span class="sc">==</span> <span class="st">&quot;poisson&quot;</span>) {</span>
-<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a>  outdir <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a>    <span class="st">&quot;../siml_data/&quot;</span>,</span>
-<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a>    family,</span>
-<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a>    <span class="st">&quot;_pi_&quot;</span>, pi,</span>
-<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a>    <span class="fu">ifelse</span>(random, <span class="st">&quot;_ran&quot;</span>, <span class="st">&quot;_noran&quot;</span>)</span>
-<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a>  )</span>
-<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a>  outdir <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
-<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a>    <span class="st">&quot;../siml_data/&quot;</span>,</span>
-<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a>    family,</span>
-<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a>    <span class="st">&quot;_pi_&quot;</span>, pi,</span>
-<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a>    <span class="st">&quot;_p_&quot;</span>, p,</span>
-<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a>    <span class="fu">ifelse</span>(random, <span class="st">&quot;_ran&quot;</span>, <span class="st">&quot;_noran&quot;</span>)</span>
-<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a>  )</span>
-<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a>}</span>
-<span id="cb9-42"><a href="#cb9-42" tabindex="-1"></a></span>
-<span id="cb9-43"><a href="#cb9-43" tabindex="-1"></a><span class="co"># create it if it doesn&#39;t exist</span></span>
-<span id="cb9-44"><a href="#cb9-44" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(outdir)) {</span>
-<span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a>  <span class="fu">dir.create</span>(outdir, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a>}</span>
-<span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a></span>
-<span id="cb9-48"><a href="#cb9-48" tabindex="-1"></a></span>
-<span id="cb9-49"><a href="#cb9-49" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nreps) {</span>
-<span id="cb9-50"><a href="#cb9-50" tabindex="-1"></a>    contact <span class="ot">&lt;-</span> <span class="fu">gen_contact</span>(S, <span class="at">family =</span> family, <span class="at">pi =</span> pi, <span class="at">p =</span> p, <span class="at">random =</span> random)</span>
-<span id="cb9-51"><a href="#cb9-51" tabindex="-1"></a>    contact <span class="ot">&lt;-</span> contact <span class="sc">+</span> <span class="fu">t</span>(contact)</span>
-<span id="cb9-52"><a href="#cb9-52" tabindex="-1"></a>    trex_name <span class="ot">&lt;-</span> <span class="fu">file.path</span>(outdir, <span class="fu">paste0</span>(<span class="st">&quot;trex_&quot;</span>, i, <span class="st">&quot;.txt&quot;</span>))</span>
-<span id="cb9-53"><a href="#cb9-53" tabindex="-1"></a>    <span class="fu">write.table</span>(contact, trex_name, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">col.names =</span> <span class="cn">FALSE</span>, <span class="at">quote =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb9-54"><a href="#cb9-54" tabindex="-1"></a>}</span>
-<span id="cb9-55"><a href="#cb9-55" tabindex="-1"></a></span>
-<span id="cb9-56"><a href="#cb9-56" tabindex="-1"></a><span class="co"># Software Versions</span></span></code></pre></div>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">require</span>(splines)</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># turn off scientific notation</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="fu">data</span>(lieberman)</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">nrow</span>(lieberman)</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co"># in our simulation we take the first 500 coordinates and last 500 coordinates of the leibermanS</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>S <span class="ot">&lt;-</span> lieberman[<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">500</span>, (N <span class="sc">-</span> <span class="dv">499</span>)<span class="sc">:</span>N),]</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co"># settings</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>family <span class="ot">&lt;-</span> <span class="st">&quot;poisson&quot;</span> <span class="co"># or nb for negative binomial </span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>pi <span class="ot">&lt;-</span> <span class="dv">0</span> <span class="co"># zero-inflation parameter: options used in manuscript: 0, 0.05, 0.15, 0.25, 0.5</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fl">0.75</span> <span class="co"># overdispersion parameter: options used in manuscript: 0.5, 0.75, 0.9</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>random <span class="ot">&lt;-</span> <span class="cn">TRUE</span> <span class="co"># random effect: if TRUE use random effect terms if FALSE do not use</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>nreps <span class="ot">&lt;-</span> <span class="dv">1</span>  <span class="co"># we set nreps to 100 in tRex-cap manuscript</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>seed <span class="ot">=</span> <span class="dv">2</span>  <span class="co"># seed used in manuscript</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Simulating &quot;</span>, family, <span class="st">&quot; with pi=&quot;</span>, pi, <span class="st">&quot;, p=&quot;</span>, p, <span class="st">&quot; random: &quot;</span>, random, <span class="st">&quot; nreps = &quot;</span>, nreps, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>, <span class="at">sep=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="fu">set.seed</span>(seed)</span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co"># build an informative output directory name</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="cf">if</span> (family <span class="sc">==</span> <span class="st">&quot;poisson&quot;</span>) {</span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>  outdir <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a>    <span class="st">&quot;../siml_data/&quot;</span>,</span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a>    family,</span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a>    <span class="st">&quot;_pi_&quot;</span>, pi,</span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a>    <span class="fu">ifelse</span>(random, <span class="st">&quot;_ran&quot;</span>, <span class="st">&quot;_noran&quot;</span>)</span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a>  )</span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a>  outdir <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a>    <span class="st">&quot;../siml_data/&quot;</span>,</span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a>    family,</span>
+<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a>    <span class="st">&quot;_pi_&quot;</span>, pi,</span>
+<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a>    <span class="st">&quot;_p_&quot;</span>, p,</span>
+<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a>    <span class="fu">ifelse</span>(random, <span class="st">&quot;_ran&quot;</span>, <span class="st">&quot;_noran&quot;</span>)</span>
+<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a>  )</span>
+<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a>}</span>
+<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a></span>
+<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a><span class="co"># create it if it doesn&#39;t exist</span></span>
+<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(outdir)) {</span>
+<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a>  <span class="fu">dir.create</span>(outdir, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-42"><a href="#cb9-42" tabindex="-1"></a>}</span>
+<span id="cb9-43"><a href="#cb9-43" tabindex="-1"></a></span>
+<span id="cb9-44"><a href="#cb9-44" tabindex="-1"></a></span>
+<span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nreps) {</span>
+<span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a>    contact <span class="ot">&lt;-</span> <span class="fu">gen_contact</span>(S, <span class="at">family =</span> family, <span class="at">pi =</span> pi, <span class="at">p =</span> p, <span class="at">random =</span> random)</span>
+<span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a>    contact <span class="ot">&lt;-</span> contact <span class="sc">+</span> <span class="fu">t</span>(contact)</span>
+<span id="cb9-48"><a href="#cb9-48" tabindex="-1"></a>    trex_name <span class="ot">&lt;-</span> <span class="fu">file.path</span>(outdir, <span class="fu">paste0</span>(<span class="st">&quot;trex_&quot;</span>, i, <span class="st">&quot;.txt&quot;</span>))</span>
+<span id="cb9-49"><a href="#cb9-49" tabindex="-1"></a>    <span class="fu">write.table</span>(contact, trex_name, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">col.names =</span> <span class="cn">FALSE</span>, <span class="at">quote =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb9-50"><a href="#cb9-50" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+</div>
+<div id="software-versions" class="section level1">
+<h1>Software Versions</h1>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>sessioninfo<span class="sc">::</span><span class="fu">package_info</span>()</span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt;  ! package       * version   date (UTC) lib source</span></span>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt;    ape             5.8-1     2024-12-16 [1] CRAN (R 4.5.0)</span></span>
@@ -706,7 +700,6 @@ available in <code>data(lieberman)</code>.</p>
 <span id="cb10-75"><a href="#cb10-75" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb10-76"><a href="#cb10-76" tabindex="-1"></a><span class="co">#&gt;  * ── Packages attached to the search path.</span></span>
 <span id="cb10-77"><a href="#cb10-77" tabindex="-1"></a><span class="co">#&gt;  P ── Loaded and on-disk path mismatch.</span></span></code></pre></div>
-</div>
 </div>
 <div id="reference" class="section level1">
 <h1>Reference</h1>
