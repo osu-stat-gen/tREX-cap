@@ -10,7 +10,7 @@ Cut(
   breaks = NULL,
   block_size = 40,
   noverlap = 1,
-  CPU,
+  CPU = 1,
   save_mcmc = FALSE,
   mcmc = 1e+05,
   burn = 1e+05,
@@ -34,9 +34,9 @@ Cut(
 
 \item{breaks}{A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.}
 
-\item{block_size}{The size of each block.}
+\item{block_size}{The size of each block. Defaults to 40.}
 
-\item{noverlap}{Number of loci that overlap between neighboring blocks.}
+\item{noverlap}{Number of loci that overlap between neighboring blocks. Defaults to 1.}
 
 \item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Defauls to 1.}
 

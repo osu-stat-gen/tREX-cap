@@ -352,27 +352,24 @@ models enables the identification of spatial “neighborhoods,” revealing
 how non-coding genetic variants exert regulatory influence over vast
 genomic distances.</p>
 <p>tRex-CAP (Cut and Paste) is designed to reconstruct whole-genome,
-three-dimensional structures from Hi-C data. The method employs a
-divide-and-conquer strategy to manage the complexity of genomic data:
-first, each chromosome is partitioned into n overlapping blocks; second,
-the tRex algorithm reconstitutes the 3D structure of each block
-independently; and finally, these local structures are “pasted” together
-to form a global model while preserving the structural rigidity of the
-individual blocks.</p>
-<p>tRex-CAP algorithm consists of two steps. The first step is
-<code>Cut</code> where the entire contact matrix is partitioned into n
-blocks (with overlaps), and tRex algorithm is run on each block to
-obtain its respective structure. The second step is <code>Paste</code>
-where all blocks are merged into one structure using isometric
-transformations to preserve the structure of each block while matching
-them at the overlapping loci.</p>
+three-dimensional structures from Hi-C data using tREX (truncated Random
+effect EXpression) to generate its building blocks by employing a
+divide-and-conquer strategy to manage the complexity of genomic
+data.</p>
+<p>Specifically, the tRex-CAP algorithm consists of two steps. The first
+step is <code>Cut</code> where the entire contact matrix is partitioned
+into n blocks (with overlaps), and tRex algorithm is run on each block
+to obtain its respective structure. The second step is
+<code>Paste</code> where all blocks are merged into one structure using
+isometric transformations to preserve the structure of each block while
+matching them at the overlapping loci.</p>
 <p>We illustrate the usage of these functions in the following
 sections.</p>
 </div>
 <div id="algorithm" class="section level1">
 <h1>Algorithm</h1>
-<div id="cut" class="section level2">
-<h2>Cut</h2>
+<div id="the-cut-function" class="section level2">
+<h2>The Cut Function</h2>
 <div id="arugments" class="section level3">
 <h3>Arugments</h3>
 <p><code>Cut</code> function requries the following arguments:</p>
@@ -395,9 +392,12 @@ effects can be loaded by calling <code>data(example_data)</code>.</li>
 <span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt; [4,]  0  0 67  0 27</span></span>
 <span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt; [5,] 13 18 24 27  0</span></span></code></pre></div>
 <ul>
-<li>block_size: The size of each block.</li>
-<li>noverlap: Number of loci that overlap between neighboring
-blocks.</li>
+<li>block_size: The constatnt size of each block if the argument
+‘breaks’ is not provided; otherwise, ‘breaks’ takes the precedence.
+(Note: This parameter is optional if `breaks’ is provided. You need to
+discuss the two together; see sample text.)</li>
+<li>noverlap: Number of loci that overlap between neighboring blocks.
+The default value is 40.</li>
 </ul>
 <p>Optional arugments include:</p>
 <ul>
@@ -415,24 +415,30 @@ respectively.</li>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; [5,]        0.2940467   0.4465962   0.9130696</span></span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; [6,]        0.2045556   0.4265973   0.9653102</span></span></code></pre></div>
 <ul>
-<li>breaks: A vector that describes the indices of pre-specified cut
-points. If unspecified, equal block size cuts will be used.</li>
-<li>CPU: Integer specifying the number of cores for parallel MCMC
-execution.</li>
-<li>save_mcmc: Whether to save the posterior samples generated during
-the MCMC step.</li>
-<li>mcmc, burn: The number of HMC iterations and burn-ins,
-respectively.</li>
-<li>thinning: Thinning rate. For example, a thinning rate of 10 means
-every 10th HMC iteration is saved as posterior samples.</li>
-<li>jump: The initial standard deviations for parameters updated via
-Metropolis-Hastings.</li>
-<li>leapfrog.L, leapfrog.e: The initial number of leapfrog steps and
-intial epsilon for HMC.</li>
-<li>target.accept The target acceptance rate.</li>
-<li>tuning_control: Tuning control for HMC. See below for details.</li>
-<li>method.type: The method for for reconstructing each block. One of
-tRex, tPAM and bn.</li>
+<li><p>breaks: A vector that describes the indices of pre-specified cut
+points. If unspecified, equal block size cuts will be used ccording to
+the number specified in the `block_size’ parameter.</p></li>
+<li><p>CPU: Integer specifying the number of cores for parallel MCMC
+execution. Defaults to 1.</p></li>
+<li><p>save_mcmc: Whether to save the posterior samples generated during
+the MCMC step. The default value is FALSE.</p></li>
+<li><p>mcmc, burn: The number of HMC iterations and burn-ins,
+respectively. The default values for both are 10,000.</p></li>
+<li><p>thinning: Thinning rate. For example, a thinning rate of 10 means
+every 10th HMC iteration is saved as posterior samples. The default
+value is 10.</p></li>
+<li><p>jump: The initial standard deviations for multiple parameters
+updated via Metropolis-Hastings. Refer to the in package for the default
+values.</p></li>
+<li><p>leapfrog.L, leapfrog.e: The initial number of leapfrog steps and
+intial epsilon for HMC. The default values are 10 for L and 0.001 for
+e.</p></li>
+<li><p>target.accept The target acceptance rate. The default values are
+0.95.</p></li>
+<li><p>tuning_control: Tuning control for HMC. See below for
+details.</p></li>
+<li><p>method.type: The method for for reconstructing each block. One of
+tRex, tPAM and bn (Bayesian Nonparametric).</p></li>
 </ul>
 </div>
 <div id="tuning-control" class="section level3">
@@ -464,9 +470,9 @@ hyperparameter settings are retained. By default, the settings for
 other parameters intended for <code>Paste</code>.</p>
 </div>
 </div>
-<div id="paste" class="section level2">
-<h2>Paste</h2>
-<p><code>Pates</code> function combines structures obtained in
+<div id="the-paste-function" class="section level2">
+<h2>The Paste Function</h2>
+<p>The <code>Paste</code> function combines structures obtained in
 <code>Cut</code> step through rigid transformations.</p>
 <div id="arugments-1" class="section level3">
 <h3>Arugments</h3>
@@ -485,8 +491,9 @@ coordinates.</p>
 </div>
 <div id="example" class="section level2">
 <h2>Example</h2>
-<p>Here we provide an example for tRex-CAP. For simplicity, we use the
-first 100 loci in our example with no bias matrix.</p>
+<p>Here we provide an example for tRex-CAP. For illustration simplicity,
+we use the first 100 loci in our example dataset with no bias
+matrix.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>example_data_short <span class="ot">&lt;-</span> example_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>]</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>CutRes <span class="ot">&lt;-</span> <span class="fu">Cut</span>(</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>            <span class="at">contact =</span> example_data_short, </span>
@@ -510,17 +517,17 @@ first 100 loci in our example with no bias matrix.</p>
 <p>The result is an n by 3 matrix.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">head</span>(PasteRes)</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]        [,3]</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360502 -1.509834  0.08948503</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.150085 -1.509834  0.54448213</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692339 -1.059179 -0.62563066</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.766092 -1.346069 -0.85186399</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.064114 -1.851910 -0.52182987</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.863123 -1.740666 -0.25522812</span></span></code></pre></div>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360632 -1.509758  0.08945754</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.150215 -1.509758  0.54445465</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692469 -1.059103 -0.62565815</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.766222 -1.345993 -0.85189148</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.064244 -1.851833 -0.52185736</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.863253 -1.740590 -0.25525561</span></span></code></pre></div>
 <p>On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took
 23.8 seconds to execute the command above.</p>
 </div>
-<div id="cutandpaste" class="section level2">
-<h2>CutAndPaste</h2>
+<div id="the-cutandpaste-function" class="section level2">
+<h2>The CutAndPaste Function</h2>
 <p>We also wrapped <code>Cut</code> and <code>Paste</code> into a single
 function call, <code>CutAndPaste</code>. The arguments for
 <code>CutAndPaste</code> are the same as <code>Cut</code>. It runs
@@ -537,60 +544,71 @@ the n by 3 coordinates matrix.</p>
 <h1>Visualization</h1>
 <p>Once we obtain the coordinate matrix, we can plot the 3D structure
 with <code>draw_struct</code>. <code>draw_struct</code> provides
-interactive 3D visualizations based on coordinates. Due to technical
-limitations, the result is not shown here.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">draw_struct</span>(PasteRes)</span></code></pre></div>
+interactive 3D visualizations based on coordinates.</p>
+</div>
+<div id="application-to-the-lymphoblastoid-data" class="section level1">
+<h1>Application to the Lymphoblastoid Data</h1>
+<p>For users interested in reproducing our results with the
+lymphoblastoid data, we have provided the code below. Note that the
+parameter values are initially set to small values to allow for a quick
+test run. To fully reproduce the results reported in this study, users
+should use the significantly higher iteration counts specified in Park
+et al. We have processed the contact matrix to remove loci with zero
+interactions. The bias matrix is not used.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">data</span>(Lieberman_breaks)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">data</span>(Lieberman_contact)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>control_trex <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">iter =</span> <span class="fu">c</span>(<span class="dv">500</span>, <span class="dv">500</span>, <span class="dv">500</span>, <span class="dv">500</span>, <span class="dv">500</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">block_size =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">max_cycle =</span> <span class="dv">1</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>)</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>CutRes <span class="ot">=</span> <span class="fu">Cut</span>(<span class="at">contact =</span> Lieberman_breaks,</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>            <span class="at">breaks =</span> Lieberman_contact,</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>            <span class="at">noverlap =</span> <span class="dv">1</span>, </span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>            <span class="at">CPU =</span> <span class="dv">1</span>,</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>            <span class="at">mcmc =</span> <span class="dv">100</span>,</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>            <span class="at">burn =</span> <span class="dv">100</span>,</span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>            <span class="at">thinning =</span> <span class="dv">1</span>,</span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>            <span class="at">target.accept =</span> <span class="fl">0.95</span>,</span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>            <span class="at">tuning_control =</span> control_trex)</span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>PasteRes <span class="ot">=</span> <span class="fu">Paste</span>(<span class="at">contact =</span> Lieb_contact, </span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>                <span class="at">cutresult =</span> CutRes, </span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>                <span class="at">CPU =</span> <span class="dv">1</span>)</span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>                </span></code></pre></div>
+<p>Or, run <code>CutAndPaste</code> in one command:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>CAPRes <span class="ot">=</span> <span class="fu">CutAndPaste</span>(<span class="at">contact =</span> Lieberman_breaks,</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>            <span class="at">breaks =</span> Lieberman_contact,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>            <span class="at">noverlap =</span> <span class="dv">1</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>            <span class="at">CPU =</span> <span class="dv">1</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>            <span class="at">mcmc =</span> <span class="dv">1000</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>            <span class="at">burn =</span> <span class="dv">1000</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>            <span class="at">thinning =</span> <span class="dv">1</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>            <span class="at">target.accept =</span> <span class="fl">0.95</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>            <span class="at">tuning_control =</span> control_trex)</span></code></pre></div>
+<div id="results" class="section level2">
+<h2>Results</h2>
+</div>
 </div>
 <div id="simulation" class="section level1">
 <h1>Simulation</h1>
-<p>Here we briefly describe our approach to simulation in the paper.</p>
-<div id="simulation-function" class="section level2">
-<h2>Simulation Function</h2>
-<p>For a known structure <code>S</code>, we simulate the data based on
-either Poisson or negative binomial distrubtion. Possible parameters
-includes <code>pi</code> for zero inflation percentage, <code>p</code>
-for overdispersion paramter for negative binomial distribution, and
-<code>random</code> for the presence of random effect.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>gen_contact <span class="ot">&lt;-</span> <span class="cf">function</span>(S, <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>, <span class="at">pi =</span> <span class="dv">0</span>, <span class="at">p =</span> <span class="fl">0.75</span>, <span class="at">random=</span><span class="cn">FALSE</span>) {</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>    <span class="co"># S matrix: coordiantes of the loci</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>    <span class="co"># family: poisson or NB</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>    <span class="co"># pi: zero inflation percentage: 0, 0.05, 0.15, 0.25, or 0.5</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>    <span class="co"># p overdispersion factor for NB: 0.5, 0.75, or 0.9</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>    <span class="co"># family=&#39;poisson&#39; or &#39;nb&#39;</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>    ns <span class="ot">&lt;-</span> <span class="fu">nrow</span>(S)</span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>    nI <span class="ot">&lt;-</span> ns <span class="sc">*</span> (ns <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">2</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>    alpha0 <span class="ot">&lt;-</span> <span class="dv">4</span>  <span class="co"># original is 2</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>    alpha1 <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">1.2</span></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>    dist_S <span class="ot">&lt;-</span> <span class="fu">dist</span>(S)</span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>    c1 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="at">nrow =</span> ns, <span class="at">ncol =</span> ns, <span class="dv">0</span>)</span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>    <span class="co"># dist is the lower triangle matrix</span></span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>    <span class="co"># mu vector</span></span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>    <span class="co">#no random component</span></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>    mu <span class="ot">&lt;-</span> <span class="fu">exp</span>(alpha0 <span class="sc">+</span> alpha1 <span class="sc">*</span> <span class="fu">log</span>(dist_S))</span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a></span>
-<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>    <span class="cf">if</span> (random) {</span>
-<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>        NoiseU2 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(nI, <span class="at">sd =</span> <span class="fu">sqrt</span>(<span class="fl">0.03</span>))</span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>        X <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(ns, <span class="at">sd =</span> <span class="fu">sqrt</span>(<span class="fl">0.1</span>))</span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>        temp <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rep</span>(X, ns), <span class="at">ncol =</span> ns, <span class="at">byrow =</span> T)</span>
-<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>        X_mat <span class="ot">&lt;-</span> <span class="fu">as.vector</span>((temp <span class="sc">+</span> <span class="fu">t</span>(temp))[<span class="fu">lower.tri</span>(temp)])</span>
-<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>        mu <span class="ot">&lt;-</span> mu <span class="sc">+</span> X_mat <span class="sc">+</span> NoiseU2</span>
-<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a>        mu[mu <span class="sc">&lt;</span> <span class="fl">1e-6</span>] <span class="ot">&lt;-</span> <span class="fl">1e-6</span></span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a>    }</span>
-<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a></span>
-<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a>    <span class="cf">if</span> (family <span class="sc">==</span> <span class="st">&quot;poisson&quot;</span>) {</span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a>        counts <span class="ot">&lt;-</span> <span class="fu">rzipois</span>(nI, <span class="at">lambda =</span> mu, <span class="at">pstr0 =</span> pi)</span>
-<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a>        counts <span class="ot">&lt;-</span> <span class="fu">rzinegbin</span>(nI, <span class="at">size =</span> mu <span class="sc">*</span> p <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> p), <span class="at">munb =</span> mu, <span class="at">pstr0 =</span> pi)</span>
-<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a>    }</span>
-<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a>    c1[<span class="fu">lower.tri</span>(c1)] <span class="ot">&lt;-</span> counts</span>
-<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a>    <span class="fu">return</span>(c1)</span>
-<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a>}</span></code></pre></div>
-</div>
-<div id="structure-s" class="section level2">
-<h2>Structure <code>S</code></h2>
-<p>For the structure we used the first 500 and the last 500 loci from
-Lieberman-Aiden et al., 2009. The estimated whole genome structure is
-available in <code>data(lieberman)</code>.</p>
+<p>For users who are interested in reproducing the simulation results in
+Park et al.m (Meng, you need to provide this manuscript and the
+lieberman paper in the reference section) the following simulation
+function and script will lead to the reproduction of the same data
+sets.</p>
+<p>For a known structure <code>S</code>, we provided the
+<code>simulate_contact</code> function to simulate the data based on
+either Poisson or negative binomial distrubtion . Arguments for
+<code>simulate_contact</code> include <code>pi</code> for zero inflation
+percentage, <code>p</code> for overdispersion paramter for negative
+binomial distribution, and <code>random</code> for the presence of
+random effect.</p>
+<p>We used the first 500 and the last 500 loci from Lieberman-Aiden et
+al., 2009 as the structure. The coordinates whole genome is available in
+<code>data(lieberman)</code>.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">data</span>(lieberman)</span>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">nrow</span>(lieberman)</span>
@@ -604,10 +622,8 @@ available in <code>data(lieberman)</code>.</p>
 <span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; 4  3.9008142 -6.471863 6.115720</span></span>
 <span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; 5  2.4580526 -7.189958 6.264631</span></span>
 <span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; 6  2.6517531 -7.002403 6.996101</span></span></code></pre></div>
-</div>
-<div id="simulation-1" class="section level2">
-<h2>Simulation</h2>
-<p>Below is the script we used for simulation.</p>
+<p>Below is the script we used for simulation. With the provided seed,
+the simulated data should be identical to those in Park et al. </p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">require</span>(VGAM)</span>
 <span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">require</span>(reticulate)</span>
 <span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="fu">require</span>(splines)</span>
@@ -653,87 +669,8 @@ available in <code>data(lieberman)</code>.</p>
 <span id="cb11-43"><a href="#cb11-43" tabindex="-1"></a>    <span class="fu">write.table</span>(contact, trex_name, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">col.names =</span> <span class="cn">FALSE</span>, <span class="at">quote =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb11-44"><a href="#cb11-44" tabindex="-1"></a>}</span></code></pre></div>
 </div>
-</div>
-<div id="software-versions" class="section level1">
-<h1>Software Versions</h1>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>sessioninfo<span class="sc">::</span><span class="fu">package_info</span>()</span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt;  ! package       * version   date (UTC) lib source</span></span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt;    ape             5.8-1     2024-12-16 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt;    base64enc       0.1-6     2026-02-02 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt;    bslib           0.10.0    2026-01-26 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt;    cachem          1.1.0     2024-05-16 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt;    callr           3.7.6     2024-03-25 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt;    cli             3.6.6     2026-04-09 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt;    coda            0.19-4.1  2024-01-31 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt;    codetools       0.2-20    2024-03-31 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="co">#&gt;    commonmark      2.0.0     2025-07-07 [1] CRAN (R 4.5.1)</span></span>
-<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="co">#&gt;    CoprManager     0.5.8     2026-01-29 [3] local</span></span>
-<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="co">#&gt;    corpcor         1.6.10    2021-09-16 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="co">#&gt;    cubature        2.1.4-1   2025-11-22 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="co">#&gt;    desc            1.4.3     2023-12-10 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a><span class="co">#&gt;    devtools        2.5.1     2026-04-16 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-17"><a href="#cb12-17" tabindex="-1"></a><span class="co">#&gt;    digest          0.6.39    2025-11-19 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-18"><a href="#cb12-18" tabindex="-1"></a><span class="co">#&gt;    doMC          * 1.3.8     2022-02-05 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-19"><a href="#cb12-19" tabindex="-1"></a><span class="co">#&gt;    ellipsis        0.3.3     2026-04-04 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-20"><a href="#cb12-20" tabindex="-1"></a><span class="co">#&gt;    evaluate        1.0.5     2025-08-27 [1] CRAN (R 4.5.1)</span></span>
-<span id="cb12-21"><a href="#cb12-21" tabindex="-1"></a><span class="co">#&gt;    fastmap         1.2.0     2024-05-15 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-22"><a href="#cb12-22" tabindex="-1"></a><span class="co">#&gt;    foreach       * 1.5.2     2022-02-02 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-23"><a href="#cb12-23" tabindex="-1"></a><span class="co">#&gt;    fs              2.1.0     2026-04-18 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-24"><a href="#cb12-24" tabindex="-1"></a><span class="co">#&gt;    glue            1.8.1     2026-04-17 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-25"><a href="#cb12-25" tabindex="-1"></a><span class="co">#&gt;    htmltools       0.5.9     2025-12-04 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-26"><a href="#cb12-26" tabindex="-1"></a><span class="co">#&gt;    htmlwidgets     1.6.4     2023-12-06 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-27"><a href="#cb12-27" tabindex="-1"></a><span class="co">#&gt;    iterators     * 1.0.14    2022-02-05 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-28"><a href="#cb12-28" tabindex="-1"></a><span class="co">#&gt;    jquerylib       0.1.4     2021-04-26 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-29"><a href="#cb12-29" tabindex="-1"></a><span class="co">#&gt;    jsonlite        2.0.0     2025-03-27 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-30"><a href="#cb12-30" tabindex="-1"></a><span class="co">#&gt;    knitr           1.51      2025-12-20 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-31"><a href="#cb12-31" tabindex="-1"></a><span class="co">#&gt;    lattice         0.22-9    2026-02-09 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-32"><a href="#cb12-32" tabindex="-1"></a><span class="co">#&gt;    lifecycle       1.0.5     2026-01-08 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-33"><a href="#cb12-33" tabindex="-1"></a><span class="co">#&gt;    magrittr        2.0.5     2026-04-04 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-34"><a href="#cb12-34" tabindex="-1"></a><span class="co">#&gt;    MASS            7.3-65    2025-02-28 [2] CRAN (R 4.5.2)</span></span>
-<span id="cb12-35"><a href="#cb12-35" tabindex="-1"></a><span class="co">#&gt;    Matrix          1.7-5     2026-03-21 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-36"><a href="#cb12-36" tabindex="-1"></a><span class="co">#&gt;    MCMCglmm        2.36      2024-05-06 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-37"><a href="#cb12-37" tabindex="-1"></a><span class="co">#&gt;    memoise         2.0.1     2021-11-26 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-38"><a href="#cb12-38" tabindex="-1"></a><span class="co">#&gt;    nlme            3.1-169   2026-03-27 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-39"><a href="#cb12-39" tabindex="-1"></a><span class="co">#&gt;    otel            0.2.0     2025-08-29 [1] CRAN (R 4.5.1)</span></span>
-<span id="cb12-40"><a href="#cb12-40" tabindex="-1"></a><span class="co">#&gt;    pillar          1.11.1    2025-09-17 [1] CRAN (R 4.5.1)</span></span>
-<span id="cb12-41"><a href="#cb12-41" tabindex="-1"></a><span class="co">#&gt;    pkgbuild        1.4.8     2025-05-26 [1] CRAN (R 4.5.1)</span></span>
-<span id="cb12-42"><a href="#cb12-42" tabindex="-1"></a><span class="co">#&gt;    pkgconfig       2.0.3     2019-09-22 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-43"><a href="#cb12-43" tabindex="-1"></a><span class="co">#&gt;    pkgload         1.5.2     2026-04-22 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-44"><a href="#cb12-44" tabindex="-1"></a><span class="co">#&gt;    processx        3.9.0     2026-04-22 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-45"><a href="#cb12-45" tabindex="-1"></a><span class="co">#&gt;    ps              1.9.3     2026-04-20 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-46"><a href="#cb12-46" tabindex="-1"></a><span class="co">#&gt;    purrr           1.2.2     2026-04-10 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-47"><a href="#cb12-47" tabindex="-1"></a><span class="co">#&gt;    R6              2.6.1     2025-02-15 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-48"><a href="#cb12-48" tabindex="-1"></a><span class="co">#&gt;    Rcpp            1.1.1-1.1 2026-04-24 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-49"><a href="#cb12-49" tabindex="-1"></a><span class="co">#&gt;    RcppArmadillo   15.2.6-1  2026-04-21 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-50"><a href="#cb12-50" tabindex="-1"></a><span class="co">#&gt;    RcppGSL         0.3.14    2026-03-05 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-51"><a href="#cb12-51" tabindex="-1"></a><span class="co">#&gt;    rgl             1.3.36    2026-03-06 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-52"><a href="#cb12-52" tabindex="-1"></a><span class="co">#&gt;    rlang           1.2.0     2026-04-06 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-53"><a href="#cb12-53" tabindex="-1"></a><span class="co">#&gt;    rmarkdown       2.31      2026-03-26 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-54"><a href="#cb12-54" tabindex="-1"></a><span class="co">#&gt;    roxygen2        7.3.3     2025-09-03 [1] CRAN (R 4.5.1)</span></span>
-<span id="cb12-55"><a href="#cb12-55" tabindex="-1"></a><span class="co">#&gt;    rprojroot       2.1.1     2025-08-26 [1] CRAN (R 4.5.1)</span></span>
-<span id="cb12-56"><a href="#cb12-56" tabindex="-1"></a><span class="co">#&gt;    rstudioapi      0.18.0    2026-01-16 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-57"><a href="#cb12-57" tabindex="-1"></a><span class="co">#&gt;    sass            0.4.10    2025-04-11 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-58"><a href="#cb12-58" tabindex="-1"></a><span class="co">#&gt;    sessioninfo     1.2.3     2025-02-05 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-59"><a href="#cb12-59" tabindex="-1"></a><span class="co">#&gt;    stringi         1.8.7     2025-03-27 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-60"><a href="#cb12-60" tabindex="-1"></a><span class="co">#&gt;    stringr         1.6.0     2025-11-04 [1] CRAN (R 4.5.1)</span></span>
-<span id="cb12-61"><a href="#cb12-61" tabindex="-1"></a><span class="co">#&gt;    tensorA         0.36.2.1  2023-12-13 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-62"><a href="#cb12-62" tabindex="-1"></a><span class="co">#&gt;    tibble          3.3.1     2026-01-11 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-63"><a href="#cb12-63" tabindex="-1"></a><span class="co">#&gt;    tinytex         0.59      2026-03-28 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-64"><a href="#cb12-64" tabindex="-1"></a><span class="co">#&gt;  P tRexCAP       * 0.9.0     2026-05-08 [?] load_all()</span></span>
-<span id="cb12-65"><a href="#cb12-65" tabindex="-1"></a><span class="co">#&gt;    usethis         3.2.1     2025-09-06 [1] CRAN (R 4.5.1)</span></span>
-<span id="cb12-66"><a href="#cb12-66" tabindex="-1"></a><span class="co">#&gt;    vctrs           0.7.3     2026-04-11 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-67"><a href="#cb12-67" tabindex="-1"></a><span class="co">#&gt;    VGAM          * 1.1-14    2025-12-04 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-68"><a href="#cb12-68" tabindex="-1"></a><span class="co">#&gt;    withr           3.0.2     2024-10-28 [1] CRAN (R 4.5.0)</span></span>
-<span id="cb12-69"><a href="#cb12-69" tabindex="-1"></a><span class="co">#&gt;    xfun            0.57      2026-03-20 [1] CRAN (R 4.5.3)</span></span>
-<span id="cb12-70"><a href="#cb12-70" tabindex="-1"></a><span class="co">#&gt;    xml2            1.5.2     2026-01-17 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-71"><a href="#cb12-71" tabindex="-1"></a><span class="co">#&gt;    yaml            2.3.12    2025-12-10 [1] CRAN (R 4.5.2)</span></span>
-<span id="cb12-72"><a href="#cb12-72" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb12-73"><a href="#cb12-73" tabindex="-1"></a><span class="co">#&gt;  [1] /usr/local/lib/R/library</span></span>
-<span id="cb12-74"><a href="#cb12-74" tabindex="-1"></a><span class="co">#&gt;  [2] /usr/lib64/R/library</span></span>
-<span id="cb12-75"><a href="#cb12-75" tabindex="-1"></a><span class="co">#&gt;  [3] /usr/share/R/library</span></span>
-<span id="cb12-76"><a href="#cb12-76" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb12-77"><a href="#cb12-77" tabindex="-1"></a><span class="co">#&gt;  * ── Packages attached to the search path.</span></span>
-<span id="cb12-78"><a href="#cb12-78" tabindex="-1"></a><span class="co">#&gt;  P ── Loaded and on-disk path mismatch.</span></span></code></pre></div>
+<div id="reference" class="section level1">
+<h1>Reference</h1>
 </div>
 
 

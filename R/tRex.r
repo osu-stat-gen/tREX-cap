@@ -605,8 +605,8 @@ get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
 #' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j.
 #' @param bias HiC bias matrix. An \eqn{n \times 3} matrix whose columns are: effective fragment information, GC content, and mappability.
 #' @param breaks A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.
-#' @param block_size The size of each block.
-#' @param noverlap Number of loci that overlap between neighboring blocks.
+#' @param block_size The size of each block. Defaults to 40.
+#' @param noverlap Number of loci that overlap between neighboring blocks. Defaults to 1.
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defauls to 1.
 #' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.
 #' @param mcmc Number of HMC iterations
@@ -625,7 +625,7 @@ Cut <- function(contact,
                 breaks = NULL, 
                 block_size = 40, 
                 noverlap = 1, 
-                CPU, 
+                CPU = 1,
                 save_mcmc = FALSE,
                 mcmc = 100000,
                 burn = 100000,
@@ -1031,8 +1031,8 @@ Paste <- function(contact, cutresult, CPU){
 #' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j.
 #' @param bias HiC bias matrix. An \eqn{n \times 3} matrix whose columns are: effective fragment information, GC content, and mappability.
 #' @param breaks A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.
-#' @param block_size The size of each block.
-#' @param noverlap Number of loci that overlap between neighboring blocks.
+#' @param block_size The size of each block. Defaults to 40.
+#' @param noverlap Number of loci that overlap between neighboring blocks. Defaults to 1.
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defauls to 1.
 #' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.
 #' @param mcmc Number of HMC iterations
@@ -1051,7 +1051,7 @@ CutAndPaste <- function(contact,
                         breaks = NULL,
                         block_size = 40,
                         noverlap = 1,
-                        CPU,
+                        CPU = 1,
                         save_mcmc = FALSE,
                         mcmc = 100000,
                         burn = 100000,
@@ -1210,4 +1210,44 @@ lk_iso3_loglin=function(S1,S2,noverlap,y12,CPU,X1,X2){
     # list(nS2,X,pick[7])
     
     return(list(result = list(nS2, X, pick[9]), lkv = lkv))
+}
+
+
+#' @title Simulate Count Matrix based on Known Structure
+#' @param S The coordinates: an \eqn{n \times 3} matrix, where each row represent the (x, y, z) coordinates of one locus.
+#' @param family The distribution for simulation. One of "poisson" or "NB". Default to "poisson".
+#' @param pi Zero inflation parameter for zeo inflated models.  Default is 0 (no zero inflation).
+#' @param p Overdispersion parameter for negative binomial. Deafult is 0.75.
+#' @param random Whether to add random effect. Default is FALSE.
+#' @return A lower triangle count matrix. 
+#' @export
+
+simulate_contact <- function(S, family = "poisson", pi = 0, p = 0.75, random=FALSE) {
+    ns <- nrow(S)
+    nI <- ns * (ns - 1) / 2
+    alpha0 <- 4  # original is 2
+    alpha1 <- -1.2
+    dist_S <- dist(S)
+    c1 <- matrix(nrow = ns, ncol = ns, 0)
+    # dist is the lower triangle matrix
+    # mu vector
+    #no random component
+    mu <- exp(alpha0 + alpha1 * log(dist_S))
+
+    if (random) {
+        NoiseU2 <- rnorm(nI, sd = sqrt(0.03))
+        X <- rnorm(ns, sd = sqrt(0.1))
+        temp <- matrix(rep(X, ns), ncol = ns, byrow = T)
+        X_mat <- as.vector((temp + t(temp))[lower.tri(temp)])
+        mu <- mu + X_mat + NoiseU2
+        mu[mu < 1e-6] <- 1e-6
+    }
+
+    if (family == "poisson") {
+        counts <- rzipois(nI, lambda = mu, pstr0 = pi)
+    } else {
+        counts <- rzinegbin(nI, size = mu * p / (1 - p), munb = mu, pstr0 = pi)
+    }
+    c1[lower.tri(c1)] <- counts
+    return(c1)
 }
