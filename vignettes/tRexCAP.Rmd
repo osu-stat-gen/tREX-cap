@@ -1,11 +1,11 @@
 ---
 title: "tRexCAP: A Divide and Conquer Strategy for Recapitulating Whole Genome 3D Structure Using Hi-C Data"
-output: 
-  rmarkdown::html_vignette
+output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{tRexCAP}
+  %\VignetteIndexEntry{tRexCAP: A Divide and Conquer Strategy for Recapitulating Whole Genome 3D Structure Using Hi-C Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: references.bib
 ---
 
 ```{r, include = FALSE}
@@ -32,7 +32,7 @@ We illustrate the usage of these functions in the following sections.
 
 ### Arugments
 
-`Cut` function requries the following arguments:
+The `Cut` function requries the following arguments:
 
 * Contact: The matrix should be n by n and symmetric. The (i, j)-th entry of the matrix represent the count of interactions between loci i and j. The diagnoal elements of the matrix should be 0. An example contact matrix of n=1000 loci simulated with Poisson model with random effects can be loaded by calling `data(example_data)`.
 
@@ -43,7 +43,7 @@ dim(example_data)
 example_data[1:5,1:5]
 ```
 
-* block_size: The constatnt size of each block if the argument 'breaks' is not provided; otherwise, 'breaks' takes the precedence. (Note: This parameter is optional if `breaks' is provided. You need to discuss the two together; see sample text.)
+* block_size: The constatnt size of each block if the argument 'breaks' is not provided; otherwise, 'breaks' takes the precedence. (Note: This parameter is optional if `breaks` is provided. See `breaks` for details.)
 * noverlap: Number of loci that overlap between neighboring blocks. The default value is 40.
 
 Optional arugments include:
@@ -55,7 +55,7 @@ data(example_bias)
 head(example_bias)
 ```
 
-* breaks: A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used ccording to the number specified in the `block_size' parameter. 
+* breaks: A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used according to the number specified in the `block_size' parameter. 
 
 * CPU: Integer specifying the number of cores for parallel MCMC execution. Defaults to 1. 
 
@@ -90,7 +90,7 @@ control_trex <- list(
 
 ### Output
 
-`Cut` function returns the sturcture of each block and other parameters intended for `Paste`.
+The `Cut` function returns the sturcture of each block and other parameters intended for `Paste`.
 
 ## The Paste Function
 
@@ -100,7 +100,7 @@ The `Paste` function combines structures obtained in `Cut` step through rigid tr
 
 * contact: The same contact matrix used in `Cut`.
 * cutresult: The result from a Cut() call.
-* CPU:  Integer specifying the number of cores for parallel MCMC execution.
+* CPU:  Integer specifying the number of cores for parallel MCMC execution. The default value is 1.
 
 ### Output
 `Paste` returns an n by 3 matrix of the estimated coordinates.
@@ -156,7 +156,7 @@ CAPRes <- CutAndPaste(
 Once we obtain the coordinate matrix, we can plot the 3D structure with `draw_struct`. `draw_struct` provides interactive 3D visualizations based on coordinates. 
 
 # Application to the Lymphoblastoid Data
-For users interested in reproducing our results with the lymphoblastoid data, we have provided the code below. Note that the parameter values are initially set to small values to allow for a quick test run. To fully reproduce the results reported in this study, users should use the significantly higher iteration counts specified in Park et al. We have processed the contact matrix to remove loci with zero interactions. The bias matrix is not used.
+For users interested in reproducing our results with the lymphoblastoid data from lieberman:2009, we have provided the code below. Note that the parameter values are initially set to small values to allow for a quick test run. To fully reproduce the results reported in this study, users should use the significantly higher iteration counts specified in @pl:20161. We have processed the contact matrix to remove loci with zero interactions. The bias matrix is not used.
 
 ```{r, eval=FALSE}
 data(Lieberman_breaks)
@@ -168,8 +168,8 @@ control_trex <- list(
   max_cycle = 1
 )
 
-CutRes = Cut(contact = Lieberman_breaks,
-            breaks = Lieberman_contact,
+CutRes = Cut(contact = Lieberman_contact,
+            breaks = Lieberman_breaks,
             noverlap = 1, 
             CPU = 1,
             mcmc = 100,
@@ -198,14 +198,16 @@ CAPRes = CutAndPaste(contact = Lieberman_breaks,
 ```
 
 ## Results
-
+```{r}
+head(PasteRes)
+```
 
 # Simulation
-For users who are interested in reproducing the simulation results in Park et al.m (Meng, you need to provide this manuscript and the lieberman paper in the reference section) the following simulation function and script will lead to the reproduction of the same data sets. 
+For users who are interested in reproducing the simulation results in @pl:20161, the following simulation function and script will lead to the reproduction of the same data sets. 
 
 For a known structure `S`, we provided the `simulate_contact` function to simulate the data based on either Poisson or negative binomial distrubtion . Arguments for `simulate_contact` include `pi` for zero inflation percentage, `p` for overdispersion paramter for negative binomial distribution, and `random` for the presence of random effect. 
 
-We used the first 500 and the last 500 loci from Lieberman-Aiden et al., 2009 as the structure. The coordinates whole genome  is available in `data(lieberman)`.
+We used the first 500 and the last 500 loci from @lieberman:2009 as the structure. The coordinates whole genome is available from `data(lieberman)`.
 ```{r}
 options(scipen = 999)
 data(lieberman)
@@ -215,7 +217,7 @@ S <- lieberman[c(1:500, (N - 499):N),]
 head(S)
 ```
 
-Below is the script we used for simulation. With the provided seed, the simulated data should be identical to those in Park et al. 
+Below is the script we used for simulation. With the provided seed, the simulated data should be identical to those in @pl:20161. 
 ```{r, eval = FALSE}
 require(VGAM)
 require(reticulate)
@@ -263,4 +265,4 @@ for (i in 1:nreps) {
 }
 ```
 
-# Reference 
+# References
