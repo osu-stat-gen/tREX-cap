@@ -539,13 +539,13 @@ matrix.</p>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>            )</span></code></pre></div>
 <p>The result is an n by 3 matrix.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">head</span>(PasteRes)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]        [,3]</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360555 -1.509803  0.08947361</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.150138 -1.509803  0.54447071</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692392 -1.059148 -0.62564209</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.766145 -1.346038 -0.85187542</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.064167 -1.851879 -0.52184130</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.863176 -1.740635 -0.25523954</span></span></code></pre></div>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]       [,3]</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360702 -1.509718  0.0894215</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.150285 -1.509718  0.5444186</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692539 -1.059063 -0.6256942</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.766292 -1.345953 -0.8519275</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.064314 -1.851794 -0.5218934</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.863323 -1.740550 -0.2552916</span></span></code></pre></div>
 <p>On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took
 23.8 seconds to execute the command above.</p>
 </div>
@@ -583,7 +583,7 @@ interactions. The bias matrix is not used.</p>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">data</span>(Lieberman_contact)</span>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>control_trex <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">iter =</span> <span class="fu">c</span>(<span class="dv">500</span>, <span class="dv">500</span>, <span class="dv">500</span>, <span class="dv">500</span>, <span class="dv">500</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">iter =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
 <span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">block_size =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>),</span>
 <span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">max_cycle =</span> <span class="dv">1</span></span>
 <span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>)</span>
@@ -592,16 +592,18 @@ interactions. The bias matrix is not used.</p>
 <span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>            <span class="at">breaks =</span> Lieberman_breaks,</span>
 <span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>            <span class="at">noverlap =</span> <span class="dv">1</span>, </span>
 <span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>            <span class="at">CPU =</span> <span class="dv">1</span>,</span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>            <span class="at">mcmc =</span> <span class="dv">100</span>,</span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>            <span class="at">burn =</span> <span class="dv">100</span>,</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>            <span class="at">mcmc =</span> <span class="dv">1</span>,</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>            <span class="at">burn =</span> <span class="dv">0</span>,</span>
 <span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>            <span class="at">thinning =</span> <span class="dv">1</span>,</span>
 <span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>            <span class="at">target.accept =</span> <span class="fl">0.95</span>,</span>
 <span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>            <span class="at">tuning_control =</span> control_trex)</span>
 <span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a></span>
-<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>PasteRes <span class="ot">=</span> <span class="fu">Paste</span>(<span class="at">contact =</span> Lieb_contact, </span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>PasteRes <span class="ot">=</span> <span class="fu">Paste</span>(<span class="at">contact =</span> Lieberman_contact, </span>
 <span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>                <span class="at">cutresult =</span> CutRes, </span>
-<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>                <span class="at">CPU =</span> <span class="dv">1</span>)</span>
-<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>                </span></code></pre></div>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>                <span class="at">Nrep=</span><span class="dv">1</span>,</span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>                <span class="at">T=</span><span class="dv">10</span>,</span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a>                <span class="at">CPU =</span> <span class="dv">1</span>,</span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a>                <span class="at">NN=</span><span class="dv">10</span>)</span></code></pre></div>
 <p>Or, run <code>CutAndPaste</code> in one command:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>CAPRes <span class="ot">=</span> <span class="fu">CutAndPaste</span>(<span class="at">contact =</span> Lieberman_breaks,</span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>            <span class="at">breaks =</span> Lieberman_contact,</span>
@@ -615,13 +617,13 @@ interactions. The bias matrix is not used.</p>
 <div id="results" class="section level2">
 <h2>Results</h2>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">head</span>(PasteRes)</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]        [,3]</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360555 -1.509803  0.08947361</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.150138 -1.509803  0.54447071</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692392 -1.059148 -0.62564209</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.766145 -1.346038 -0.85187542</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.064167 -1.851879 -0.52184130</span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.863176 -1.740635 -0.25523954</span></span></code></pre></div>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt;          [,1]      [,2]      [,3]</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; [1,] 4.963956 -5.320900 -7.361227</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; [2,] 4.133191 -5.320900 -4.420932</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; [3,] 4.261713 -5.287105 -4.901403</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; [4,] 4.300599 -1.481142 -5.133475</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; [5,] 4.531243 -1.594912 -5.051426</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; [6,] 4.459939 -1.685412 -5.127266</span></span></code></pre></div>
 </div>
 </div>
 <div id="simulation" class="section level1">

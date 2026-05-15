@@ -168,26 +168,22 @@ control_trex <- list(
   max_cycle = 1
 )
 
-start <- proc.time()
 CutRes = Cut(contact = Lieberman_contact,
             breaks = Lieberman_breaks,
             noverlap = 1, 
             CPU = 1,
-            mcmc = 5,
+            mcmc = 1,
             burn = 0,
             thinning = 1,
             target.accept = 0.95,
             tuning_control = control_trex)
-elapsed <- proc.time() - start
 
-start <- proc.time()
 PasteRes = Paste(contact = Lieberman_contact, 
                 cutresult = CutRes, 
                 Nrep=1,
                 T=10,
                 CPU = 1,
                 NN=10)
-elapsed <- proc.time() - start
 
 ```
 

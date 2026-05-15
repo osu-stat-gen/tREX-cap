@@ -512,9 +512,9 @@ mctrex <- function(k,
   # same as X in data_generation.r
   
   if (save_mcmc){
-    return(list(coords = str1, X = psample[[3]], params = colMeans(param), mcmc = psample))
+    return(list(coords = str1, X = psample[[3]], params = colMeans(param), loci = psample[[1]], mcmc = psample))
   } else {
-    return(list(coords = str1, X = psample[[3]], params = colMeans(param)))      
+    return(list(coords = str1, X = psample[[3]], params = colMeans(param), loci = psample[[1]]))      
   }
 }
 
@@ -644,7 +644,15 @@ Cut <- function(contact,
   cutlist = get.breakpoints(breaks=breaks, n=n, block_size=block_size, noverlap=noverlap)
   nblock = length(cutlist)
   
-  
+  # if customized breaks, redefine block_size 
+  if (!is.null(breaks)) {
+    # check if block_size is equal
+    if (length(diff(breaks)) ==1 ) {
+      block_size <- unqiue(diff(breaks))
+    } else {
+      block_size <- NA
+      }
+  } 
   # Check if the operating system is Windows
   if (.Platform$OS.type == "windows") {
     # Load doParallel for Windows
@@ -832,10 +840,16 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
 
     sr <- 1
     # initial block
-    start <- max(1, (sr - 1) * block_size - noverlap + 1)
+    if (!is.na(block_size)) {
+      block1_end <- max(1, floor(N / block_size / 2) - 1)
+      start <- max(1, (sr - 1) * block_size - noverlap + 1)
+    } else {
+      block1_end <- max(1, floor(length(result)/2)-1)
+      start <- 1
+    }
+
     likelihood <- list()
     y11 <- y2[start:nrow(y2), start:nrow(y2)]
-    block1_end <- max(1, floor(N / block_size / 2) - 1)
     k <- 1
     for (k in sr:block1_end) {
       cat("k =", k, "\n")
@@ -904,9 +918,15 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
     X11 <- X1
     
     sr <- block1_end + 2
-    block2_end <- ceiling(N / block_size) - 1
-    
-    start <- max(1, (sr - 1) * block_size - noverlap + 1)
+
+    if (!is.na(block_size)) {
+      block2_end <- ceiling(N / block_size) - 1
+      start <- max(1, (sr - 1) * block_size - noverlap + 1)
+    } else {
+        block2_end <- length(result)-1
+        start <- max(1, result[[sr]]$loci[1])
+    }
+
     y22 <- y2[start:nrow(y2), start:nrow(y2)]
     for (k in sr:block2_end) {
       cat("k =", k, "\n")

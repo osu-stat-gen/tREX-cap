@@ -876,7 +876,7 @@ arma::vec APG(const arma::mat& y12,
 }
 
 
-
+//' @export
 // [[Rcpp::export]]
 arma::vec minimizer(const uint Nrep,
                     const arma::mat& y12,

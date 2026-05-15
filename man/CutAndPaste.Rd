@@ -24,6 +24,9 @@ CutAndPaste(
   leapfrog.e = 0.001,
   target.accept = 0.95,
   tuning_control = NULL,
+  Nrep = 50,
+  T = 500,
+  NN = 50000,
   method.type = "tRex"
 )
 }
@@ -38,7 +41,7 @@ CutAndPaste(
 
 \item{noverlap}{Number of loci that overlap between neighboring blocks. Defaults to 1.}
 
-\item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Defauls to 1.}
+\item{CPU}{Integer specifying the number of cores for parallel MCMC execution. The default value is 1.}
 
 \item{save_mcmc}{Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.}
 
@@ -55,6 +58,10 @@ CutAndPaste(
 \item{target.accept}{The target acceptance rate.}
 
 \item{tuning_control}{Tuning control for HMC. See vignette for details.}
+
+\item{T}{Maximum number of APG iterations. The default value is 500.}
+
+\item{NN}{Number of interations of Monte Carlo fallback should APG fails to converge. The default value is 50000.}
 
 \item{method.type}{One of tRex, tPAM and bn.}
 

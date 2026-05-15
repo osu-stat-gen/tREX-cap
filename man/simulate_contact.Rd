@@ -18,7 +18,7 @@ simulate_contact(S, family = "poisson", pi = 0, p = 0.75, random = FALSE)
 \item{random}{Whether to add random effect. Default is FALSE.}
 }
 \value{
-A symmetric \eqn{n \times n} count matrix.
+A lower triangle count matrix.
 }
 \description{
 Simulate Count Matrix based on Known Structure

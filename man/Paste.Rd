@@ -4,14 +4,20 @@
 \alias{Paste}
 \title{Run the paste part of cut and paste}
 \usage{
-Paste(contact, cutresult, CPU)
+Paste(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000)
 }
 \arguments{
 \item{contact}{The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j.}
 
 \item{cutresult}{The result from a Cut() call.}
 
-\item{CPU}{Integer specifying the number of cores for parallel MCMC execution. Defaults to 1.}
+\item{Nrep}{Number of independent start for APG algorithm. The default value is 50.}
+
+\item{T}{Maximum number of APG iterations. The default value is 500.}
+
+\item{CPU}{Integer specifying the number of cores for parallel MCMC execution. The default value is 1.}
+
+\item{NN}{Number of interations of Monte Carlo fallback should APG fails to converge. The default value is 50000.}
 }
 \value{
 An \eqn{n \times 3} matrix of the estimated coordinates.
