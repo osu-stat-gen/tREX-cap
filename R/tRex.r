@@ -735,7 +735,7 @@ Paste_orig <- function(contact, cutresult, CPU){
     n1 <- nrow(S1)
     S1 <- S1[1:(n1 - noverlap), ]
     # running APG in C++
-    res <- minimizer(50, y12,S1,S2,llambdax, threads=CPU)
+    res <- minimizer(Nrep, y12,S1,S2,llambdax, T = T, threads=CPU)
     # rotate wrt the minimizer
     nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
     # paste results to current matrices
@@ -776,7 +776,7 @@ Paste_orig <- function(contact, cutresult, CPU){
     n1 <- nrow(S1)
     S1 <- S1[1:(n1 - noverlap), ]
     #min first arugment defualt 50
-    res <- minimizer(50, y12,S1,S2,llambdax, threads=CPU)
+    res <- minimizer(Nrep, y12,S1,S2,llambdax, T=T, threads=CPU)
     nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
     X1 <- c(X1[1:(n1 - noverlap)], X2[-(1:noverlap)])
     S1 <- rbind(S1[1:(fixed_point - 1), ], nS2)
@@ -802,7 +802,7 @@ Paste_orig <- function(contact, cutresult, CPU){
   llambdax <- exp(outer(X11[1:(n1 - noverlap)], X22[-(1:noverlap)], FUN = "+"))
   n1 <- nrow(S1)
   S1 <- S1[1:(n1 - noverlap), ]
-  res <- minimizer(50, y2_new,S1,S2,llambdax, threads=CPU)
+  res <- minimizer(Nrep, y2_new,S1,S2,llambdax, T = T, threads=CPU)
   nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
   FS12 <- rbind(S1[1:(fixed_point - 1), ], nS2)
   likelihood <- rbind(likelihood, c(k+1, res))
@@ -814,10 +814,13 @@ Paste_orig <- function(contact, cutresult, CPU){
 #'
 #' @param contact The contact matrix: an \eqn{n \times n} matrix, where n is the number of loci. Its element (i, j) denotes the number of interactions between locus i and j. 
 #' @param cutresult The result from a Cut() call.
-#' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defaults to 1.
+#' @param Nrep Number of independent start for APG algorithm. The default value is 50.
+#' @param T Maximum number of APG iterations. The default value is 500.
+#' @param CPU Integer specifying the number of cores for parallel MCMC execution. The default value is 1.
+#' @param NN Number of interations of Monte Carlo fallback should APG fails to converge. The default value is 50000.
 #' @return An \eqn{n \times 3} matrix of the estimated coordinates.
 #' @export
-Paste <- function(contact, cutresult, CPU){
+Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
     cutlist <- cutresult[[1]] # these are the breakpoints
     result <- cutresult[[2]] # these are the cuts
     noverlap <- cutresult[[3]] # this is noverlap used for the cuts
@@ -862,7 +865,7 @@ Paste <- function(contact, cutresult, CPU){
           # running APG in C++
           S1_trim <- S1[1:(n1 - noverlap), ]
           #min first arugment defualt 50
-          res <- minimizer(50, y12,S1_trim,S2,llambdax, threads=CPU)
+          res <- minimizer(Nrep, y12,S1_trim,S2,llambdax, T = T, threads=CPU)
           
               
           # rotate wrt the minimizer
@@ -883,7 +886,7 @@ Paste <- function(contact, cutresult, CPU){
         # fallback to do the MC
         
         if (is.null(apg_result)) {
-          best <- lk_iso3_loglin(S1, S2, noverlap, y12, CPU, X1, X2)
+          best <- lk_iso3_loglin(S1, S2, noverlap, y12, CPU, X1, X2, NN = NN)
           nS2 <- best$result[[1]]
           X1  <- best$result[[2]]
           S1  <- rbind(S1[1:(fixed_point - 1), ], nS2)
@@ -931,7 +934,7 @@ Paste <- function(contact, cutresult, CPU){
           n1 <- nrow(S1)
           S1_trim <- S1[1:(n1 - noverlap), ]
           #min first arugment defualt 50
-          res <- minimizer(50, y12,S1_trim,S2,llambdax, threads=CPU)
+          res <- minimizer(Nrep, y12,S1_trim,S2,llambdax, T = T, threads=CPU)
           
           nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
           X1_new <- c(X1[1:(n1 - noverlap)], X2[-(1:noverlap)])
@@ -949,7 +952,7 @@ Paste <- function(contact, cutresult, CPU){
         # fallback to do the MC
         
         if (is.null(apg_result)) {
-          best <- lk_iso3_loglin(S1, S2, noverlap, y12, CPU, X1, X2)
+          best <- lk_iso3_loglin(S1, S2, noverlap, y12, CPU, X1, X2, NN = NN)
           nS2 <- best$result[[1]]
           X1  <- best$result[[2]]
           S1  <- rbind(S1[1:(fixed_point - 1), ], nS2)
@@ -988,7 +991,7 @@ Paste <- function(contact, cutresult, CPU){
       # running APG in C++
       S1_trim <- S1[1:(n1 - noverlap), ]
       #min first arugment defualt 50
-      res <- minimizer(50, y2_new,S1_trim,S2,llambdax, threads=CPU)
+      res <- minimizer(Nrep, y2_new,S1_trim,S2,llambdax, T = T, threads=CPU)
       
       
       # rotate wrt the minimizer
@@ -1009,7 +1012,7 @@ Paste <- function(contact, cutresult, CPU){
     # fallback to do the MC
     
     if (is.null(apg_result)) {
-      best <- lk_iso3_loglin(S1, S2, noverlap, y2_new, CPU, X11, X22)
+      best <- lk_iso3_loglin(S1, S2, noverlap, y2_new, CPU, X11, X22, NN = NN)
       nS2 <- best$result[[1]]
       X1  <- best$result[[2]]
       FS12  <- rbind(S1[1:(fixed_point - 1), ], nS2)
@@ -1043,6 +1046,9 @@ Paste <- function(contact, cutresult, CPU){
 #' @param leapfrog.e The initial epsilon.
 #' @param target.accept The target acceptance rate. 
 #' @param tuning_control Tuning control for HMC. See vignette for details.
+#' @param T Maximum number of APG iterations. The default value is 500.
+#' @param CPU Integer specifying the number of cores for parallel MCMC execution. The default value is 1.
+#' @param NN Number of interations of Monte Carlo fallback should APG fails to converge. The default value is 50000.
 #' @param method.type One of tRex, tPAM and bn.
 #' @return A list of the following elements: cutlist, result, noverlap, and block_size.
 #' @export
@@ -1065,6 +1071,9 @@ CutAndPaste <- function(contact,
                         leapfrog.e = 0.001,
                         target.accept = 0.95,
                         tuning_control = NULL,
+                        Nrep = 50, 
+                        T = 500,
+                        NN = 50000,
                         method.type = "tRex"){
   
   cuts <- Cut(
@@ -1089,8 +1098,12 @@ CutAndPaste <- function(contact,
     tuning_control = tuning_control,
     method.type = method.type
   )
-  paste = Paste(contact = contact, cutresult=cuts, CPU=CPU)
-  
+  paste = Paste(contact = contact, 
+                cutresult=cuts,
+                CPU=CPU,
+                Nrep = Nrep,
+                T = T, 
+                NN = NN)
   return(paste)
   
 }
@@ -1145,7 +1158,7 @@ beta_min <- function(beta, llambdax, y12, ddd) {
 
 
 
-lk_iso3_loglin=function(S1,S2,noverlap,y12,CPU,X1,X2){
+lk_iso3_loglin=function(S1, S2, noverlap, y12, CPU, X1, X2, NN=50000){
     n1 <- nrow(S1)
     n2 <- nrow(S2)
     fixed_point <- n1 - noverlap + 1
@@ -1192,9 +1205,6 @@ lk_iso3_loglin=function(S1,S2,noverlap,y12,CPU,X1,X2){
         pick=c(a1,a2,a3,refx,refy,refz,v,scale,beta1)
         return(pick)
     }
-    
-
-    NN=50000
     
     value=mclapply(1:NN,cal_lk,mc.cores = getOption("mc.cores", CPU))
     lkv=do.call(rbind,value)

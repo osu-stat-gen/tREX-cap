@@ -158,30 +158,37 @@ Once we obtain the coordinate matrix, we can plot the 3D structure with `draw_st
 # Application to the Lymphoblastoid Data
 For users interested in reproducing our results with the lymphoblastoid data from lieberman:2009, we have provided the code below. Note that the parameter values are initially set to small values to allow for a quick test run. To fully reproduce the results reported in this study, users should use the significantly higher iteration counts specified in @pl:20161. We have processed the contact matrix to remove loci with zero interactions. The bias matrix is not used.
 
-```{r, eval=FALSE}
+```{r, results = 'hide', message = FALSE}
 data(Lieberman_breaks)
 data(Lieberman_contact)
 
 control_trex <- list(
-  iter = c(500, 500, 500, 500, 500),
+  iter = c(1, 1, 1, 1, 1),
   block_size = c(10, 10, 10, 10, 10),
   max_cycle = 1
 )
 
+start <- proc.time()
 CutRes = Cut(contact = Lieberman_contact,
             breaks = Lieberman_breaks,
             noverlap = 1, 
             CPU = 1,
-            mcmc = 100,
-            burn = 100,
+            mcmc = 5,
+            burn = 0,
             thinning = 1,
             target.accept = 0.95,
             tuning_control = control_trex)
+elapsed <- proc.time() - start
 
-PasteRes = Paste(contact = Lieb_contact, 
+start <- proc.time()
+PasteRes = Paste(contact = Lieberman_contact, 
                 cutresult = CutRes, 
-                CPU = 1)
-                
+                Nrep=1,
+                T=10,
+                CPU = 1,
+                NN=10)
+elapsed <- proc.time() - start
+
 ```
 
 Or, run `CutAndPaste` in one command:
