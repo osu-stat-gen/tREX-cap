@@ -25,12 +25,10 @@ Specifically, the tRex-CAP algorithm consists of two steps. The first step is `C
 
 We illustrate the usage of these functions in the following sections.
 
-# Algorithm
-
-## The Cut Function
+# The Cut Function
 
 
-### Arugments
+## Arugments
 
 The `Cut` function requries the following arguments:
 
@@ -43,10 +41,8 @@ dim(example_data)
 example_data[1:5,1:5]
 ```
 
-* block_size: The constatnt size of each block if the argument 'breaks' is not provided; otherwise, 'breaks' takes the precedence. (Note: This parameter is optional if `breaks` is provided. See `breaks` for details.)
-* noverlap: Number of loci that overlap between neighboring blocks. The default value is 40.
-
-Optional arugments include:
+* block_size: The constant size of each block if the argument 'breaks' is not provided; otherwise, 'breaks' takes the precedence. (Note: This parameter is optional if `breaks` is provided. See `breaks` for details.)
+* NumOverlap: Number of loci that overlap between neighboring blocks. The default value is 1.
 
 * bias: An n by 3 matrix. The 3 columns describe effective fragment information, GC content, and mappability for each locus, respectively. 
 
@@ -69,13 +65,13 @@ head(example_bias)
 
 * leapfrog.L, leapfrog.e: The initial number of leapfrog steps and intial epsilon for HMC. The default values are 10 for L and 0.001 for e.
 
-* target.accept The target acceptance rate. The default values are 0.95.
+* target.accept: The target acceptance rate. The default values are 0.95.
 
 * tuning_control: Tuning control for HMC. See below for details.
 
 * method.type: The method for for reconstructing each block. One of tRex, tPAM and bn (Bayesian Nonparametric).
 
-### Tuning Control
+## Tuning Control
 We do a five phase tuning. Phase 1 adapts the number of steps (L) and the step size (epsilon), phase 2 runs the chain, phase 3 adapts the step size (epsilon), phase 4 runs the chain, and phase 5 adapts the Metropolis-Hasting jump parameters.
 
 The tuning control is a list comprising of `iter`, `block_size` and `max_cycle`. The `iter` parameter controls the number of iterations for each phase. Here, the `block_size` parameter controls how often acceptance rates are reported and how frequently hyperparameter adjustments occur according to parameter acceptance rates. The `max_cycle` parameter determines how many times the algorithm goes through the phases. Between cycles, the structure is reset but hyperparameter settings are retained. By default, the settings for `tuning_control` are retained. Below is an example of the `tuning_control` used for the sample data.
@@ -88,32 +84,33 @@ control_trex <- list(
 )
 ```
 
-### Output
+## Output
 
 The `Cut` function returns the sturcture of each block and other parameters intended for `Paste`.
 
-## The Paste Function
+# The Paste Function
 
-The `Paste` function combines structures obtained in `Cut` step through rigid transformations.
+The `Paste` function combines structures obtained in `Cut` step through isometric transformations.
 
-### Arugments
+## Arugments
 
 * contact: The same contact matrix used in `Cut`.
 * cutresult: The result from a Cut() call.
 * CPU:  Integer specifying the number of cores for parallel MCMC execution. The default value is 1.
 
-### Output
+## Output
 `Paste` returns an n by 3 matrix of the estimated coordinates.
 
-## Example
+# Example
 Here we provide an example for tRex-CAP. For illustration simplicity, we use the first 100 loci in our example dataset with no bias matrix.
 
+To fully reproduce the results in Park et al. (2026), please read the "Simulation" section on how to simulate the exact datasets used in our simulation studies. The Lymphoblastoid data used in our analysis, Lieberman_breaks and Lieberman_contact, are also provided for reproducing our result.
 ```{r, results = 'hide', message = FALSE}
 example_data_short <- example_data[1:100, 1:100]
 CutRes <- Cut(
             contact = example_data_short, 
             block_size = 25, 
-            noverlap = 1, 
+            NumOverlap = 1, 
             CPU = 1,
             mcmc = 1000,
             burn = 1000,
@@ -141,14 +138,14 @@ head(PasteRes)
 
 On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took 23.8 seconds to execute the command above.
 
-## The CutAndPaste Function
+# The CutAndPaste Function
 We also wrapped `Cut` and `Paste` into a single function call, `CutAndPaste`. The arguments for `CutAndPaste` are the same as `Cut`. It runs `Cut` and then `Paste` sequentially, and returns the n by 3 coordinates matrix.
 
 ```{r, eval=FALSE}
 CAPRes <- CutAndPaste(
             contact = sim_hic,
-            block_size = 12,
-            noverlap = 1,
+            block_size = 25,
+            NumOverlap = 1,
             CPU = 5)
 ```
 
@@ -163,17 +160,18 @@ data(Lieberman_breaks)
 data(Lieberman_contact)
 
 control_trex <- list(
-  iter = c(1, 1, 1, 1, 1),
+  iter = c(10, 10, 10, 10, 10),
   block_size = c(10, 10, 10, 10, 10),
   max_cycle = 1
 )
 
+start_time <- proc.time()
 CutRes = Cut(contact = Lieberman_contact,
             breaks = Lieberman_breaks,
-            noverlap = 1, 
+            NumOverlap = 1, 
             CPU = 1,
-            mcmc = 1,
-            burn = 0,
+            mcmc = 10,
+            burn = 10,
             thinning = 1,
             target.accept = 0.95,
             tuning_control = control_trex)
@@ -185,13 +183,14 @@ PasteRes = Paste(contact = Lieberman_contact,
                 CPU = 1,
                 NN=10)
 
+end_time <- proc.time()
 ```
 
-Or, run `CutAndPaste` in one command:
+The above code took `r (end_time-start_time)[3]` seconds to execute. Alternatively, one can run `CutAndPaste` in one command:
 ```{r, eval = FALSE}
 CAPRes = CutAndPaste(contact = Lieberman_breaks,
             breaks = Lieberman_contact,
-            noverlap = 1,
+            NumOverlap = 1,
             CPU = 1,
             mcmc = 1000,
             burn = 1000,

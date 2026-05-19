@@ -179,8 +179,7 @@ function(contact,
         leapfrog.L=10,
         leapfrog.e=0.001,
         target.accept = 0.95,
-        tuning_control = NULL,
-        method.type=c("tRex","tPAM","bn"))
+        tuning_control = NULL)
 {
     n = nrow(contact)
     
@@ -188,7 +187,6 @@ function(contact,
     block1_size <- block2_size <- block3_size <- block4_size <- block5_size <- 0L
     max_cycle <- 0L
     
-    switch(method.type,
     tRex={
         if(!is.null(bias)){
             if(n != nrow(bias)) stop("tRex : The number of loci is different from the number of bias.\n")
@@ -225,23 +223,7 @@ function(contact,
         block5_size <- as.integer(tuning_control$block_size[5])
         
         max_cycle <- as.integer(tuning_control$max_cycle)
-        
-    },
-    tPAM={
-        if(!is.null(bias)){
-            if(n != nrow(bias)) stop("tPAM : The number of loci is different from the number of bias.\n")
-            if(ncol(bias) != 3) stop("tPAM : The number of columns is not 3.\n")
-        }
-        if(max(abs(contact-t(contact)))!=0) stop("tPAM : The contact matrix is not symmetric.\n")
-    },
-    bn={
-        if(!is.null(bias)){
-            if(n != nrow(bias)) stop("Bayesian Nonparametric : The number of loci is different from the number of bias.\n")
-            if(ncol(bias) != 3) stop("Bayesian Nonparametric : The number of columns is not 3.\n")
-        }
-        if(max(abs(contact-t(contact)))!=0) stop("Bayesian Nonparametric : The contact matrix is not symmetric.\n")
     }
-    )
     
     if(!is.null(bias)){
         bias=log(bias)
@@ -269,20 +251,15 @@ function(contact,
     }
     
     if(is.null(bias)){
-        if(method.type=="tRex") output=.nz2(Contact, n, mcmc, burn, jump.beta1, jump.x, jump.u, leapfrog.L, leapfrog.e, thinning,1,
+        output=.nz2(Contact, n, mcmc, burn, jump.beta1, jump.x, jump.u, leapfrog.L, leapfrog.e, thinning,1,
                                             iter1, iter2, iter3, iter4, iter5,
                                               block1_size, block2_size, block3_size, block4_size, block5_size,
-                                              max_cycle, target.accept)
-        else if(method.type=="tPAM") output=.nz2(Contact, n, mcmc, burn, jump.beta1, jump.cov1, jump.cov2, leapfrog.L, leapfrog.e, thinning,0)
-        else if(method.type=="bn") output=.bn2(Contact, n, mcmc, burn, jump.beta1, jump.cov1, jump.cov2, leapfrog.L, leapfrog.e, thinning,0)
-        
+                                              max_cycle, target.accept)  
     }else{
-        if(method.type=="tRex") output=.nz(Contact, as.vector(t(bias2)), n, mcmc, burn, jump.beta1, jump.x, jump.u, leapfrog.L, leapfrog.e, thinning,1,
+        output=.nz(Contact, as.vector(t(bias2)), n, mcmc, burn, jump.beta1, jump.x, jump.u, leapfrog.L, leapfrog.e, thinning,1,
                                             iter1, iter2, iter3, iter4, iter5,
                                               block1_size, block2_size, block3_size, block4_size, block5_size,
                                               max_cycle, target.accept)
-        else if(method.type=="tPAM") output=.nz(Contact, as.vector(t(bias2)), n, mcmc, burn, jump.beta1, jump.cov1, jump.cov2, leapfrog.L, leapfrog.e, thinning,0)
-        else if(method.type=="bn") output=.bn(Contact, as.vector(t(bias2)), n, mcmc, burn, jump.beta1, jump.cov1, jump.cov2, leapfrog.L, leapfrog.e, thinning,0)
     }
     
     R=output[["result"]]
@@ -302,60 +279,25 @@ function(contact,
     X=matrix(ncol=1,nrow=n,0)
     U=matrix(ncol=n,nrow=n,0)
 
-    if(method.type=="tRex"){
-        Param=matrix(nrow=nsave,ncol=5,0)
-        colnames(Param)=c("beta1","cov1","cov2","sigma.x","sigma.u")
-        for(i in 1:nsave){
-            for(j in 1:5){
-                Param[i,j]=R[k]
-                k=k+1
-            }
-        }
-
-        for(i in 1:n){
-            X[i,1]=R[k];k=k+1
-        }
-        for(i in 1:(n-1)){
-            for(j in (i+1):n){
-                U[i,j]=R[k];U[j,i]=R[k];k=k+1
-            }
-        }
-    }else if(method.type=="tPAM"){
-        Param=matrix(nrow=nsave,ncol=3,0)
-        colnames(Param)=c("beta1","cov1","cov2")
-        for(i in 1:nsave){
-            for(j in 1:3){
-                Param[i,j]=R[k]
-                k=k+1
-            }
-        }
-    }else if(method.type=="bn"){
-        if(!is.null(bias)){
-            Param=matrix(nrow=nsave,ncol=13,0)
-            colnames(Param)=c("cov1","cov2","b1","b2","b3","b4","b5","b6","b7","b8","b9","b10","b11")
-            for(i in 1:nsave){
-                for(j in 1:2){
-                    Param[i,j]=R[k]
-                    k=k+1
-                }
-            }
-            for(i in 1:nsave){
-                for(j in 3:13){
-                    Param[i,j]=R[k]
-                    k=k+1
-                }
-            }
-        }else{
-            Param=matrix(nrow=nsave,ncol=11,0)
-            colnames(Param)=c("b1","b2","b3","b4","b5","b6","b7","b8","b9","b10","b11")
-            for(i in 1:nsave){
-                for(j in 1:11){
-                    Param[i,j]=R[k]
-                    k=k+1
-                }
-            }
+  
+    Param=matrix(nrow=nsave,ncol=5,0)
+    colnames(Param)=c("beta1","cov1","cov2","sigma.x","sigma.u")
+    for(i in 1:nsave){
+        for(j in 1:5){
+            Param[i,j]=R[k]
+            k=k+1
         }
     }
+
+    for(i in 1:n){
+        X[i,1]=R[k];k=k+1
+    }
+    for(i in 1:(n-1)){
+        for(j in (i+1):n){
+            U[i,j]=R[k];U[j,i]=R[k];k=k+1
+        }
+    }
+
     acceptance=c(R[k],R[(k+1)],R[(k+2)],R[(k+3)])
     k=k+4
     lk=matrix(nrow=nsave,ncol=1,0)
@@ -474,8 +416,7 @@ mctrex <- function(k,
                    leapfrog.L = 10, 
                    leapfrog.e = 0.001, 
                    target.accept = 0.95,
-                   tuning_control = NULL,
-                   method.type = "tRex") {
+                   tuning_control = NULL) {
   # partition the matrix
   
   start <- cutlist[[k]][1]
@@ -502,8 +443,7 @@ mctrex <- function(k,
     leapfrog.L = leapfrog.L,
     leapfrog.e = leapfrog.e,
     target.accept = target.accept,
-    tuning_control = tuning_control,
-    method.type = method.type
+    tuning_control = tuning_control
   )
   param <- get.param(psample)
   
@@ -555,10 +495,10 @@ Rz_apply <- function(S, theta) {
 #' @param n The number of loci to partition.
 #' @param breaks A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.
 #' @param block_size The size of each block.
-#' @param noverlap Number of loci that overlap between neighboring blocks.
+#' @param NumOverlap Number of loci that overlap between neighboring blocks.
 #' @return A list. Each element is a size-2 vector detailing the index of the first and last element of the block.
 #' @export
-get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
+get.breakpoints <- function(breaks=NULL, n, block_size = 40, NumOverlap = 1){
   numloci = n
   
   # if breaks is null, then we assume that the block_size is equal
@@ -568,13 +508,13 @@ get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
     for(k in 1:nblock){
       if (k == 1) {
         start <- 1
-        end <- block_size + noverlap
+        end <- block_size + NumOverlap
       } else if (k == nblock) {
-        start <- (k - 1) * block_size - noverlap + 1
+        start <- (k - 1) * block_size - NumOverlap + 1
         end <- n
       } else {
-        start <- (k - 1) * block_size - noverlap + 1
-        end <- min(k * block_size + noverlap, n)
+        start <- (k - 1) * block_size - NumOverlap + 1
+        end <- min(k * block_size + NumOverlap, n)
       }
       cutlist[[k]] <- c(start, end)
     }
@@ -585,13 +525,13 @@ get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
     for(k in 1:(lenbreaks-1)){
       if (k == 1) {
         start <- breaks[k]
-        end <- breaks[k+1] -1 + noverlap
+        end <- breaks[k+1] -1 + NumOverlap
       } else if (k == lenbreaks-1) {
-        start <- breaks[k] - noverlap 
+        start <- breaks[k] - NumOverlap 
         end <- breaks[k+1]
       } else {
-        start <- breaks[k] - noverlap 
-        end <- breaks[k+1] -1 + noverlap
+        start <- breaks[k] - NumOverlap 
+        end <- breaks[k+1] -1 + NumOverlap
       }
       cutlist[[k]] <- c(start, end)
     }
@@ -606,7 +546,7 @@ get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
 #' @param bias HiC bias matrix. An \eqn{n \times 3} matrix whose columns are: effective fragment information, GC content, and mappability.
 #' @param breaks A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.
 #' @param block_size The size of each block. Defaults to 40.
-#' @param noverlap Number of loci that overlap between neighboring blocks. Defaults to 1.
+#' @param NumOverlap Number of loci that overlap between neighboring blocks. Defaults to 1.
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defauls to 1.
 #' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.
 #' @param mcmc Number of HMC iterations
@@ -617,14 +557,13 @@ get.breakpoints <- function(breaks=NULL, n, block_size = 40, noverlap = 1){
 #' @param leapfrog.L The initial epsilon.
 #' @param target.accept The target acceptance rate. 
 #' @param tuning_control Tuning control for HMC. See vignette for details.
-#' @param method.type One of tRex, tPAM and bn.
-#' @return A list of the following elements: cutlist, result, noverlap, and block_size.
+#' @return A list of the following elements: cutlist, result, NumOverlap, and block_size.
 #' @export
 Cut <- function(contact, 
                 bias = NULL, 
                 breaks = NULL, 
                 block_size = 40, 
-                noverlap = 1, 
+                NumOverlap = 1, 
                 CPU = 1,
                 save_mcmc = FALSE,
                 mcmc = 100000,
@@ -638,10 +577,9 @@ Cut <- function(contact,
                 leapfrog.L = 10,
                 leapfrog.e = 0.001,
                 target.accept = 0.95,
-                tuning_control = NULL,
-                method.type = "tRex"){
+                tuning_control = NULL){
   n = ncol(contact)
-  cutlist = get.breakpoints(breaks=breaks, n=n, block_size=block_size, noverlap=noverlap)
+  cutlist = get.breakpoints(breaks=breaks, n=n, block_size=block_size, NumOverlap=NumOverlap)
   nblock = length(cutlist)
   
   # if customized breaks, redefine block_size 
@@ -693,19 +631,18 @@ Cut <- function(contact,
       leapfrog.L = leapfrog.L,
       leapfrog.e = leapfrog.e,
       target.accept = target.accept,
-      tuning_control = tuning_control,
-      method.type = method.type
+      tuning_control = tuning_control
     )
   }
   
-  return(list(cutlist, result, noverlap, block_size)) 
+  return(list(cutlist, result, NumOverlap, block_size)) 
 }
 
 # run the paste part of cut and paste
 Paste_orig <- function(contact, cutresult, CPU){
   cutlist <- cutresult[[1]] # these are the breakpoints
   result <- cutresult[[2]] # these are the cuts
-  noverlap <- cutresult[[3]] # this is noverlap used for the cuts
+  NumOverlap <- cutresult[[3]] # this is NumOverlap used for the cuts
   block_size <- cutresult[[4]] # this is block_size used for the cuts
   
   y2 <- contact 
@@ -713,7 +650,7 @@ Paste_orig <- function(contact, cutresult, CPU){
   
   sr <- 1
   # initial block
-  start <- 1    #shouldn't need this for the initial block:  max(1, (sr - 1) * block_size - noverlap + 1)
+  start <- 1    #shouldn't need this for the initial block:  max(1, (sr - 1) * block_size - NumOverlap + 1)
   likelihood <- NULL
   y11 <- y2[start:nrow(y2), start:nrow(y2)]
   block1_end <- floor(length(cutlist)/2)-1  #floor(N / block_size / 2) - 1
@@ -727,27 +664,27 @@ Paste_orig <- function(contact, cutresult, CPU){
     
     # remove M1 and M2 margins, fix the last of M1 and first of M2 both to be (0,0,0)
     n1 <- nrow(S1)
-    S1 <- t(t(S1) - S1[(n1 - noverlap + 1), ])
+    S1 <- t(t(S1) - S1[(n1 - NumOverlap + 1), ])
     S2 <- result[[(k + 1)]]$coords ## L2
-    S2 <- S2[(noverlap + 1):nrow(S2), ]
+    S2 <- S2[(NumOverlap + 1):nrow(S2), ]
     S2 <- t(t(S2) - S2[1, ])
     n2 <- nrow(S2)
     X2 <- result[[(k + 1)]]$X[, 1]
     
-    fixed_point <- n1 - noverlap + 1
+    fixed_point <- n1 - NumOverlap + 1
     if (fixed_point > N) break
-    cat("Fixed Point", n1 - noverlap + 1, "\n")
+    cat("Fixed Point", n1 - NumOverlap + 1, "\n")
     y12 <- y11[1:(fixed_point - 1), fixed_point:(fixed_point - 1 + n2)]
-    fixed_point <- n1 - noverlap + 1
-    llambdax <- exp(outer(X1[1:(n1 - noverlap)], X2[-(1:noverlap)], FUN = "+"))
+    fixed_point <- n1 - NumOverlap + 1
+    llambdax <- exp(outer(X1[1:(n1 - NumOverlap)], X2[-(1:NumOverlap)], FUN = "+"))
     n1 <- nrow(S1)
-    S1 <- S1[1:(n1 - noverlap), ]
+    S1 <- S1[1:(n1 - NumOverlap), ]
     # running APG in C++
     res <- minimizer(Nrep, y12,S1,S2,llambdax, T = T, threads=CPU)
     # rotate wrt the minimizer
     nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
     # paste results to current matrices
-    X1 <- c(X1[1:(n1 - noverlap)], X2[-(1:noverlap)])
+    X1 <- c(X1[1:(n1 - NumOverlap)], X2[-(1:NumOverlap)])
     S1 <- rbind(S1[1:(fixed_point - 1), ], nS2)
     likelihood <- rbind(likelihood, c(k, res))
   }
@@ -758,7 +695,7 @@ Paste_orig <- function(contact, cutresult, CPU){
   sr <- block1_end + 2
   block2_end <- length(cutlist)-1   #ceiling(N / block_size) - 1
   
-  start <- max(1, cutlist[[sr]][1])  #max(1, (sr - 1) * block_size - noverlap + 1)
+  start <- max(1, cutlist[[sr]][1])  #max(1, (sr - 1) * block_size - NumOverlap + 1)
   y22 <- y2[start:nrow(y2), start:nrow(y2)] 
   for (k in sr:block2_end) {
     cat("k =", k, "\n")
@@ -768,25 +705,25 @@ Paste_orig <- function(contact, cutresult, CPU){
     }
     
     n1 <- nrow(S1)
-    S1 <- t(t(S1) - S1[(n1 - noverlap + 1), ])
+    S1 <- t(t(S1) - S1[(n1 - NumOverlap + 1), ])
     S2 <- result[[(k + 1)]]$coords ## L2
-    S2 <- S2[(noverlap + 1):nrow(S2), ]
+    S2 <- S2[(NumOverlap + 1):nrow(S2), ]
     S2 <- t(t(S2) - S2[1, ])
     n2 <- nrow(S2)
     X2 <- result[[(k + 1)]]$X[, 1]
     
-    fixed_point <- n1 - noverlap + 1
+    fixed_point <- n1 - NumOverlap + 1
     if (fixed_point > N) break
-    cat("Fixed Point", n1 - noverlap + 1, "\n")
+    cat("Fixed Point", n1 - NumOverlap + 1, "\n")
     y12 <- y22[1:(fixed_point - 1), fixed_point:(fixed_point - 1 + n2)]
-    fixed_point <- n1 - noverlap + 1
-    llambdax <- exp(outer(X1[1:(n1 - noverlap)], X2[-(1:noverlap)], FUN = "+"))
+    fixed_point <- n1 - NumOverlap + 1
+    llambdax <- exp(outer(X1[1:(n1 - NumOverlap)], X2[-(1:NumOverlap)], FUN = "+"))
     n1 <- nrow(S1)
-    S1 <- S1[1:(n1 - noverlap), ]
+    S1 <- S1[1:(n1 - NumOverlap), ]
     #min first arugment defualt 50
     res <- minimizer(Nrep, y12,S1,S2,llambdax, T=T, threads=CPU)
     nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
-    X1 <- c(X1[1:(n1 - noverlap)], X2[-(1:noverlap)])
+    X1 <- c(X1[1:(n1 - NumOverlap)], X2[-(1:NumOverlap)])
     S1 <- rbind(S1[1:(fixed_point - 1), ], nS2)
     likelihood <- rbind(likelihood, c(k, res))
   }
@@ -798,18 +735,18 @@ Paste_orig <- function(contact, cutresult, CPU){
   
   S1 <- SS1
   S2 <- SS2
-  S1 <- t(t(S1) - S1[(nrow(S1) - noverlap + 1), ])
+  S1 <- t(t(S1) - S1[(nrow(S1) - NumOverlap + 1), ])
   n1 <- nrow(S1)
-  S2 <- S2[(noverlap + 1):nrow(S2), ]
+  S2 <- S2[(NumOverlap + 1):nrow(S2), ]
   S2 <- t(t(S2) - S2[1, ])
   n2 <- nrow(S2)
-  fixed_point <- n1 - noverlap + 1
-  cat("Final: Fixed Point", n1 - noverlap + 1, "\n")
+  fixed_point <- n1 - NumOverlap + 1
+  cat("Final: Fixed Point", n1 - NumOverlap + 1, "\n")
   y2_new <- y2[1:(fixed_point - 1), fixed_point:(fixed_point - 1 + n2)]
   
-  llambdax <- exp(outer(X11[1:(n1 - noverlap)], X22[-(1:noverlap)], FUN = "+"))
+  llambdax <- exp(outer(X11[1:(n1 - NumOverlap)], X22[-(1:NumOverlap)], FUN = "+"))
   n1 <- nrow(S1)
-  S1 <- S1[1:(n1 - noverlap), ]
+  S1 <- S1[1:(n1 - NumOverlap), ]
   res <- minimizer(Nrep, y2_new,S1,S2,llambdax, T = T, threads=CPU)
   nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
   FS12 <- rbind(S1[1:(fixed_point - 1), ], nS2)
@@ -831,7 +768,7 @@ Paste_orig <- function(contact, cutresult, CPU){
 Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
     cutlist <- cutresult[[1]] # these are the breakpoints
     result <- cutresult[[2]] # these are the cuts
-    noverlap <- cutresult[[3]] # this is noverlap used for the cuts
+    NumOverlap <- cutresult[[3]] # this is NumOverlap used for the cuts
     block_size <- cutresult[[4]] # this is block_size used for the cuts
     
     y2 <- contact 
@@ -842,7 +779,7 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
     # initial block
     if (!is.na(block_size)) {
       block1_end <- max(1, floor(N / block_size / 2) - 1)
-      start <- max(1, (sr - 1) * block_size - noverlap + 1)
+      start <- max(1, (sr - 1) * block_size - NumOverlap + 1)
     } else {
       block1_end <- max(1, floor(length(result)/2)-1)
       start <- 1
@@ -860,24 +797,24 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
     
       # remove M1 and M2 margins, fix the last of M1 and first of M2 both to be (0,0,0)
       n1 <- nrow(S1)
-      S1 <- t(t(S1) - S1[(n1 - noverlap + 1), ])
+      S1 <- t(t(S1) - S1[(n1 - NumOverlap + 1), ])
       S2 <- result[[(k + 1)]]$coords ## L2
-      S2 <- S2[(noverlap + 1):nrow(S2), ]
+      S2 <- S2[(NumOverlap + 1):nrow(S2), ]
       S2 <- t(t(S2) - S2[1, ])
       n2 <- nrow(S2)
       X2 <- result[[(k + 1)]]$X[, 1]
     
-      fixed_point <- n1 - noverlap + 1
+      fixed_point <- n1 - NumOverlap + 1
       if (fixed_point > N) break
-      cat("Fixed Point", n1 - noverlap + 1, "\n")
+      cat("Fixed Point", n1 - NumOverlap + 1, "\n")
       y12 <- y11[1:(fixed_point - 1), fixed_point:(fixed_point - 1 + n2)]
       
        ## Attempt APG method first
       apg_result = tryCatch({
-          llambdax <- exp(outer(X1[1:(n1 - noverlap)], X2[-(1:noverlap)], FUN = "+"))
+          llambdax <- exp(outer(X1[1:(n1 - NumOverlap)], X2[-(1:NumOverlap)], FUN = "+"))
           n1 <- nrow(S1)
           # running APG in C++
-          S1_trim <- S1[1:(n1 - noverlap), ]
+          S1_trim <- S1[1:(n1 - NumOverlap), ]
           #min first arugment defualt 50
           res <- minimizer(Nrep, y12,S1_trim,S2,llambdax, T = T, threads=CPU)
           
@@ -885,7 +822,7 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
           # rotate wrt the minimizer
           nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
           # paste results to current matrices
-          X1_new <- c(X1[1:(n1 - noverlap)], X2[-(1:noverlap)])
+          X1_new <- c(X1[1:(n1 - NumOverlap)], X2[-(1:NumOverlap)])
           S1_new <- rbind(S1_trim[1:(fixed_point - 1), ], nS2)
           likelihood_new <- c(k, res)
           
@@ -900,7 +837,7 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
         # fallback to do the MC
         
         if (is.null(apg_result)) {
-          best <- lk_iso3_loglin(S1, S2, noverlap, y12, CPU, X1, X2, NN = NN)
+          best <- lk_iso3_loglin(S1, S2, NumOverlap, y12, CPU, X1, X2, NN = NN)
           nS2 <- best$result[[1]]
           X1  <- best$result[[2]]
           S1  <- rbind(S1[1:(fixed_point - 1), ], nS2)
@@ -921,7 +858,7 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
 
     if (!is.na(block_size)) {
       block2_end <- ceiling(N / block_size) - 1
-      start <- max(1, (sr - 1) * block_size - noverlap + 1)
+      start <- max(1, (sr - 1) * block_size - NumOverlap + 1)
     } else {
         block2_end <- length(result)-1
         start <- max(1, result[[sr]]$loci[1])
@@ -936,28 +873,28 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
       }
     
       n1 <- nrow(S1)
-      S1 <- t(t(S1) - S1[(n1 - noverlap + 1), ])
+      S1 <- t(t(S1) - S1[(n1 - NumOverlap + 1), ])
       S2 <- result[[(k + 1)]]$coords ## L2
-      S2 <- S2[(noverlap + 1):nrow(S2), ]
+      S2 <- S2[(NumOverlap + 1):nrow(S2), ]
       S2 <- t(t(S2) - S2[1, ])
       n2 <- nrow(S2)
       X2 <- result[[(k + 1)]]$X[, 1]
       
-      fixed_point <- n1 - noverlap + 1
+      fixed_point <- n1 - NumOverlap + 1
       if (fixed_point > N) break
-      cat("Fixed Point", n1 - noverlap + 1, "\n")
+      cat("Fixed Point", n1 - NumOverlap + 1, "\n")
       y12 <- y22[1:(fixed_point - 1), fixed_point:(fixed_point - 1 + n2)]
       
       ## Attempt APG method first
       apg_result = tryCatch({
-          llambdax <- exp(outer(X1[1:(n1 - noverlap)], X2[-(1:noverlap)], FUN = "+"))
+          llambdax <- exp(outer(X1[1:(n1 - NumOverlap)], X2[-(1:NumOverlap)], FUN = "+"))
           n1 <- nrow(S1)
-          S1_trim <- S1[1:(n1 - noverlap), ]
+          S1_trim <- S1[1:(n1 - NumOverlap), ]
           #min first arugment defualt 50
           res <- minimizer(Nrep, y12,S1_trim,S2,llambdax, T = T, threads=CPU)
           
           nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
-          X1_new <- c(X1[1:(n1 - noverlap)], X2[-(1:noverlap)])
+          X1_new <- c(X1[1:(n1 - NumOverlap)], X2[-(1:NumOverlap)])
           S1_new <- rbind(S1_trim[1:(fixed_point - 1), ], nS2)
           likelihood_new <- c(k, res)
     
@@ -972,7 +909,7 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
         # fallback to do the MC
         
         if (is.null(apg_result)) {
-          best <- lk_iso3_loglin(S1, S2, noverlap, y12, CPU, X1, X2, NN = NN)
+          best <- lk_iso3_loglin(S1, S2, NumOverlap, y12, CPU, X1, X2, NN = NN)
           nS2 <- best$result[[1]]
           X1  <- best$result[[2]]
           S1  <- rbind(S1[1:(fixed_point - 1), ], nS2)
@@ -994,22 +931,22 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
     
     S1 <- SS1
     S2 <- SS2
-    S1 <- t(t(S1) - S1[(nrow(S1) - noverlap + 1), ])
+    S1 <- t(t(S1) - S1[(nrow(S1) - NumOverlap + 1), ])
     n1 <- nrow(S1)
-    S2 <- S2[(noverlap + 1):nrow(S2), ]
+    S2 <- S2[(NumOverlap + 1):nrow(S2), ]
     S2 <- t(t(S2) - S2[1, ])
     n2 <- nrow(S2)
-    fixed_point <- n1 - noverlap + 1
-    cat("Final: Fixed Point", n1 - noverlap + 1, "\n")
+    fixed_point <- n1 - NumOverlap + 1
+    cat("Final: Fixed Point", n1 - NumOverlap + 1, "\n")
     y2_new <- y2[1:(fixed_point - 1), fixed_point:(fixed_point - 1 + n2)]
     
     
      ## Attempt APG method first
     apg_result = tryCatch({
-      llambdax <- exp(outer(X11[1:(n1 - noverlap)], X22[-(1:noverlap)], FUN = "+"))
+      llambdax <- exp(outer(X11[1:(n1 - NumOverlap)], X22[-(1:NumOverlap)], FUN = "+"))
       n1 <- nrow(S1)
       # running APG in C++
-      S1_trim <- S1[1:(n1 - noverlap), ]
+      S1_trim <- S1[1:(n1 - NumOverlap), ]
       #min first arugment defualt 50
       res <- minimizer(Nrep, y2_new,S1_trim,S2,llambdax, T = T, threads=CPU)
       
@@ -1017,7 +954,7 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
       # rotate wrt the minimizer
       nS2 <- t(Rz(res[3]) %*% Ry(res[2]) %*% Rx(res[1]) %*% t(S2))
       # paste results to current matrices
-      X1_new <- c(X1[1:(n1 - noverlap)], X2[-(1:noverlap)])
+      X1_new <- c(X1[1:(n1 - NumOverlap)], X2[-(1:NumOverlap)])
       S1_new <- rbind(S1_trim[1:(fixed_point - 1), ], nS2)
       likelihood_new <- c(-1, res)
       
@@ -1032,7 +969,7 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
     # fallback to do the MC
     
     if (is.null(apg_result)) {
-      best <- lk_iso3_loglin(S1, S2, noverlap, y2_new, CPU, X11, X22, NN = NN)
+      best <- lk_iso3_loglin(S1, S2, NumOverlap, y2_new, CPU, X11, X22, NN = NN)
       nS2 <- best$result[[1]]
       X1  <- best$result[[2]]
       FS12  <- rbind(S1[1:(fixed_point - 1), ], nS2)
@@ -1055,7 +992,7 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
 #' @param bias HiC bias matrix. An \eqn{n \times 3} matrix whose columns are: effective fragment information, GC content, and mappability.
 #' @param breaks A vector that describes the indices of pre-specified cut points. If unspecified, equal block size cuts will be used.
 #' @param block_size The size of each block. Defaults to 40.
-#' @param noverlap Number of loci that overlap between neighboring blocks. Defaults to 1.
+#' @param NumOverlap Number of loci that overlap between neighboring blocks. Defaults to 1.
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. Defauls to 1.
 #' @param save_mcmc Whether to save the posterior samples generated during the MCMC step. Defaults to FALSE.
 #' @param mcmc Number of HMC iterations
@@ -1069,14 +1006,13 @@ Paste <- function(contact, cutresult, Nrep = 50, T = 500, CPU = 1, NN = 50000){
 #' @param T Maximum number of APG iterations. The default value is 500.
 #' @param CPU Integer specifying the number of cores for parallel MCMC execution. The default value is 1.
 #' @param NN Number of interations of Monte Carlo fallback should APG fails to converge. The default value is 50000.
-#' @param method.type One of tRex, tPAM and bn.
-#' @return A list of the following elements: cutlist, result, noverlap, and block_size.
+#' @return A list of the following elements: cutlist, result, NumOverlap, and block_size.
 #' @export
 CutAndPaste <- function(contact,
                         bias = NULL,
                         breaks = NULL,
                         block_size = 40,
-                        noverlap = 1,
+                        NumOverlap = 1,
                         CPU = 1,
                         save_mcmc = FALSE,
                         mcmc = 100000,
@@ -1093,15 +1029,14 @@ CutAndPaste <- function(contact,
                         tuning_control = NULL,
                         Nrep = 50, 
                         T = 500,
-                        NN = 50000,
-                        method.type = "tRex"){
+                        NN = 50000){
   
   cuts <- Cut(
     contact = contact,
     bias = bias,
     breaks = breaks,
     block_size = block_size,
-    noverlap = noverlap,
+    NumOverlap = NumOverlap,
     CPU = CPU,
     save_mcmc = save_mcmc,
     mcmc = mcmc,
@@ -1115,8 +1050,7 @@ CutAndPaste <- function(contact,
     leapfrog.L = leapfrog.L,
     leapfrog.e = leapfrog.e,
     target.accept = target.accept,
-    tuning_control = tuning_control,
-    method.type = method.type
+    tuning_control = tuning_control
   )
   paste = Paste(contact = contact, 
                 cutresult=cuts,
@@ -1178,13 +1112,13 @@ beta_min <- function(beta, llambdax, y12, ddd) {
 
 
 
-lk_iso3_loglin=function(S1, S2, noverlap, y12, CPU, X1, X2, NN=50000){
+lk_iso3_loglin=function(S1, S2, NumOverlap, y12, CPU, X1, X2, NN=50000){
     n1 <- nrow(S1)
     n2 <- nrow(S2)
-    fixed_point <- n1 - noverlap + 1
+    fixed_point <- n1 - NumOverlap + 1
 
-    X <- c(X1[1:(n1 - noverlap)], X2[-(1:noverlap)])
-    llambdax <- outer(X1[1:(n1 - noverlap)], X2[-(1:noverlap)], FUN = "+")
+    X <- c(X1[1:(n1 - NumOverlap)], X2[-(1:NumOverlap)])
+    llambdax <- outer(X1[1:(n1 - NumOverlap)], X2[-(1:NumOverlap)], FUN = "+")
    
     cal_lk=function(x){
         ddd=matrix(nrow=(fixed_point-1),ncol=ncol(y12),0)
@@ -1208,7 +1142,7 @@ lk_iso3_loglin=function(S1, S2, noverlap, y12, CPU, X1, X2, NN=50000){
 
 
 
-		for(i in 1:(n1-noverlap)){
+		for(i in 1:(n1-NumOverlap)){
 		    for(j in fixed_point:(fixed_point-1+n2)){
 		        jstar=j-fixed_point+1
 		        ddd[i,jstar]=sqrt(sum((S1[i,]-nS2[jstar,])^2))

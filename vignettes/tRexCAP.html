@@ -389,12 +389,10 @@ matching them at the overlapping loci.</p>
 <p>We illustrate the usage of these functions in the following
 sections.</p>
 </div>
-<div id="algorithm" class="section level1">
-<h1>Algorithm</h1>
-<div id="the-cut-function" class="section level2">
-<h2>The Cut Function</h2>
-<div id="arugments" class="section level3">
-<h3>Arugments</h3>
+<div id="the-cut-function" class="section level1">
+<h1>The Cut Function</h1>
+<div id="arugments" class="section level2">
+<h2>Arugments</h2>
 <p>The <code>Cut</code> function requries the following arguments:</p>
 <ul>
 <li>Contact: The matrix should be n by n and symmetric. The (i, j)-th
@@ -415,18 +413,15 @@ effects can be loaded by calling <code>data(example_data)</code>.</li>
 <span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt; [4,]  0  0 67  0 27</span></span>
 <span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt; [5,] 13 18 24 27  0</span></span></code></pre></div>
 <ul>
-<li>block_size: The constatnt size of each block if the argument
+<li><p>block_size: The constant size of each block if the argument
 ‘breaks’ is not provided; otherwise, ‘breaks’ takes the precedence.
 (Note: This parameter is optional if <code>breaks</code> is provided.
-See <code>breaks</code> for details.)</li>
-<li>noverlap: Number of loci that overlap between neighboring blocks.
-The default value is 40.</li>
-</ul>
-<p>Optional arugments include:</p>
-<ul>
-<li>bias: An n by 3 matrix. The 3 columns describe effective fragment
+See <code>breaks</code> for details.)</p></li>
+<li><p>NumOverlap: Number of loci that overlap between neighboring
+blocks. The default value is 1.</p></li>
+<li><p>bias: An n by 3 matrix. The 3 columns describe effective fragment
 information, GC content, and mappability for each locus,
-respectively.</li>
+respectively.</p></li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">data</span>(example_bias)</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">head</span>(example_bias)</span>
@@ -456,7 +451,7 @@ values.</p></li>
 <li><p>leapfrog.L, leapfrog.e: The initial number of leapfrog steps and
 intial epsilon for HMC. The default values are 10 for L and 0.001 for
 e.</p></li>
-<li><p>target.accept The target acceptance rate. The default values are
+<li><p>target.accept: The target acceptance rate. The default values are
 0.95.</p></li>
 <li><p>tuning_control: Tuning control for HMC. See below for
 details.</p></li>
@@ -464,8 +459,8 @@ details.</p></li>
 tRex, tPAM and bn (Bayesian Nonparametric).</p></li>
 </ul>
 </div>
-<div id="tuning-control" class="section level3">
-<h3>Tuning Control</h3>
+<div id="tuning-control" class="section level2">
+<h2>Tuning Control</h2>
 <p>We do a five phase tuning. Phase 1 adapts the number of steps (L) and
 the step size (epsilon), phase 2 runs the chain, phase 3 adapts the step
 size (epsilon), phase 4 runs the chain, and phase 5 adapts the
@@ -487,18 +482,18 @@ hyperparameter settings are retained. By default, the settings for
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">max_cycle =</span> <span class="dv">1</span></span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>)</span></code></pre></div>
 </div>
-<div id="output" class="section level3">
-<h3>Output</h3>
+<div id="output" class="section level2">
+<h2>Output</h2>
 <p>The <code>Cut</code> function returns the sturcture of each block and
 other parameters intended for <code>Paste</code>.</p>
 </div>
 </div>
-<div id="the-paste-function" class="section level2">
-<h2>The Paste Function</h2>
+<div id="the-paste-function" class="section level1">
+<h1>The Paste Function</h1>
 <p>The <code>Paste</code> function combines structures obtained in
-<code>Cut</code> step through rigid transformations.</p>
-<div id="arugments-1" class="section level3">
-<h3>Arugments</h3>
+<code>Cut</code> step through isometric transformations.</p>
+<div id="arugments-1" class="section level2">
+<h2>Arugments</h2>
 <ul>
 <li>contact: The same contact matrix used in <code>Cut</code>.</li>
 <li>cutresult: The result from a Cut() call.</li>
@@ -506,14 +501,14 @@ other parameters intended for <code>Paste</code>.</p>
 execution. The default value is 1.</li>
 </ul>
 </div>
-<div id="output-1" class="section level3">
-<h3>Output</h3>
+<div id="output-1" class="section level2">
+<h2>Output</h2>
 <p><code>Paste</code> returns an n by 3 matrix of the estimated
 coordinates.</p>
 </div>
 </div>
-<div id="example" class="section level2">
-<h2>Example</h2>
+<div id="example" class="section level1">
+<h1>Example</h1>
 <p>Here we provide an example for tRex-CAP. For illustration simplicity,
 we use the first 100 loci in our example dataset with no bias
 matrix.</p>
@@ -521,7 +516,7 @@ matrix.</p>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>CutRes <span class="ot">&lt;-</span> <span class="fu">Cut</span>(</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>            <span class="at">contact =</span> example_data_short, </span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>            <span class="at">block_size =</span> <span class="dv">25</span>, </span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>            <span class="at">noverlap =</span> <span class="dv">1</span>, </span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>            <span class="at">NumOverlap =</span> <span class="dv">1</span>, </span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>            <span class="at">CPU =</span> <span class="dv">1</span>,</span>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>            <span class="at">mcmc =</span> <span class="dv">1000</span>,</span>
 <span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>            <span class="at">burn =</span> <span class="dv">1000</span>,</span>
@@ -539,18 +534,18 @@ matrix.</p>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>            )</span></code></pre></div>
 <p>The result is an n by 3 matrix.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">head</span>(PasteRes)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]       [,3]</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360702 -1.509718  0.0894215</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.150285 -1.509718  0.5444186</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692539 -1.059063 -0.6256942</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.766292 -1.345953 -0.8519275</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.064314 -1.851794 -0.5218934</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.863323 -1.740550 -0.2552916</span></span></code></pre></div>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]        [,3]</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360389 -1.509901  0.08950969</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.149972 -1.509901  0.54450679</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692226 -1.059246 -0.62560601</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.765979 -1.346136 -0.85183934</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.064001 -1.851976 -0.52180522</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.863009 -1.740733 -0.25520346</span></span></code></pre></div>
 <p>On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took
 23.8 seconds to execute the command above.</p>
 </div>
-<div id="the-cutandpaste-function" class="section level2">
-<h2>The CutAndPaste Function</h2>
+<div id="the-cutandpaste-function" class="section level1">
+<h1>The CutAndPaste Function</h1>
 <p>We also wrapped <code>Cut</code> and <code>Paste</code> into a single
 function call, <code>CutAndPaste</code>. The arguments for
 <code>CutAndPaste</code> are the same as <code>Cut</code>. It runs
@@ -558,10 +553,9 @@ function call, <code>CutAndPaste</code>. The arguments for
 the n by 3 coordinates matrix.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>CAPRes <span class="ot">&lt;-</span> <span class="fu">CutAndPaste</span>(</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>            <span class="at">contact =</span> sim_hic,</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>            <span class="at">block_size =</span> <span class="dv">12</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>            <span class="at">noverlap =</span> <span class="dv">1</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>            <span class="at">block_size =</span> <span class="dv">25</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>            <span class="at">NumOverlap =</span> <span class="dv">1</span>,</span>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>            <span class="at">CPU =</span> <span class="dv">5</span>)</span></code></pre></div>
-</div>
 </div>
 <div id="visualization" class="section level1">
 <h1>Visualization</h1>
@@ -583,31 +577,36 @@ interactions. The bias matrix is not used.</p>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">data</span>(Lieberman_contact)</span>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>control_trex <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">iter =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">iter =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>),</span>
 <span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">block_size =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>),</span>
 <span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">max_cycle =</span> <span class="dv">1</span></span>
 <span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>)</span>
 <span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>CutRes <span class="ot">=</span> <span class="fu">Cut</span>(<span class="at">contact =</span> Lieberman_contact,</span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>            <span class="at">breaks =</span> Lieberman_breaks,</span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>            <span class="at">noverlap =</span> <span class="dv">1</span>, </span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>            <span class="at">CPU =</span> <span class="dv">1</span>,</span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>            <span class="at">mcmc =</span> <span class="dv">1</span>,</span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>            <span class="at">burn =</span> <span class="dv">0</span>,</span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>            <span class="at">thinning =</span> <span class="dv">1</span>,</span>
-<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>            <span class="at">target.accept =</span> <span class="fl">0.95</span>,</span>
-<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>            <span class="at">tuning_control =</span> control_trex)</span>
-<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a></span>
-<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>PasteRes <span class="ot">=</span> <span class="fu">Paste</span>(<span class="at">contact =</span> Lieberman_contact, </span>
-<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>                <span class="at">cutresult =</span> CutRes, </span>
-<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>                <span class="at">Nrep=</span><span class="dv">1</span>,</span>
-<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>                <span class="at">T=</span><span class="dv">10</span>,</span>
-<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a>                <span class="at">CPU =</span> <span class="dv">1</span>,</span>
-<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a>                <span class="at">NN=</span><span class="dv">10</span>)</span></code></pre></div>
-<p>Or, run <code>CutAndPaste</code> in one command:</p>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>start_time <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>CutRes <span class="ot">=</span> <span class="fu">Cut</span>(<span class="at">contact =</span> Lieberman_contact,</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>            <span class="at">breaks =</span> Lieberman_breaks,</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>            <span class="at">NumOverlap =</span> <span class="dv">1</span>, </span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>            <span class="at">CPU =</span> <span class="dv">1</span>,</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>            <span class="at">mcmc =</span> <span class="dv">10</span>,</span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>            <span class="at">burn =</span> <span class="dv">10</span>,</span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>            <span class="at">thinning =</span> <span class="dv">1</span>,</span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>            <span class="at">target.accept =</span> <span class="fl">0.95</span>,</span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>            <span class="at">tuning_control =</span> control_trex)</span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>PasteRes <span class="ot">=</span> <span class="fu">Paste</span>(<span class="at">contact =</span> Lieberman_contact, </span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>                <span class="at">cutresult =</span> CutRes, </span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>                <span class="at">Nrep=</span><span class="dv">1</span>,</span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a>                <span class="at">T=</span><span class="dv">10</span>,</span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a>                <span class="at">CPU =</span> <span class="dv">1</span>,</span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a>                <span class="at">NN=</span><span class="dv">10</span>)</span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a></span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a>end_time <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()</span></code></pre></div>
+<p>The above code took <code>{r}(end_time-start_time)[3]</code> seconds
+to execute. Alternatively, one can run <code>CutAndPaste</code> in one
+command:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>CAPRes <span class="ot">=</span> <span class="fu">CutAndPaste</span>(<span class="at">contact =</span> Lieberman_breaks,</span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>            <span class="at">breaks =</span> Lieberman_contact,</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>            <span class="at">noverlap =</span> <span class="dv">1</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>            <span class="at">NumOverlap =</span> <span class="dv">1</span>,</span>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>            <span class="at">CPU =</span> <span class="dv">1</span>,</span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>            <span class="at">mcmc =</span> <span class="dv">1000</span>,</span>
 <span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>            <span class="at">burn =</span> <span class="dv">1000</span>,</span>
@@ -617,13 +616,13 @@ interactions. The bias matrix is not used.</p>
 <div id="results" class="section level2">
 <h2>Results</h2>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">head</span>(PasteRes)</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt;          [,1]      [,2]      [,3]</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; [1,] 4.963956 -5.320900 -7.361227</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; [2,] 4.133191 -5.320900 -4.420932</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; [3,] 4.261713 -5.287105 -4.901403</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; [4,] 4.300599 -1.481142 -5.133475</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; [5,] 4.531243 -1.594912 -5.051426</span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; [6,] 4.459939 -1.685412 -5.127266</span></span></code></pre></div>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt;            [,1]     [,2]     [,3]</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; [1,]  -9.386856 11.54546 2.715417</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; [2,] -12.282589 11.54546 6.815056</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; [3,] -11.834865 14.07103 7.297721</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; [4,] -11.037150 14.76475 6.855372</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; [5,] -10.682331 14.85265 6.946546</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; [6,] -10.633140 14.59654 6.919595</span></span></code></pre></div>
 </div>
 </div>
 <div id="simulation" class="section level1">
