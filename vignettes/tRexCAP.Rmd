@@ -152,60 +152,8 @@ CAPRes <- CutAndPaste(
 # Visualization
 Once we obtain the coordinate matrix, we can plot the 3D structure with `draw_struct`. `draw_struct` provides interactive 3D visualizations based on coordinates. 
 
-# Application to the Lymphoblastoid Data
-For users interested in reproducing our results with the lymphoblastoid data from lieberman:2009, we have provided the code below. Note that the parameter values are initially set to small values to allow for a quick test run. To fully reproduce the results reported in this study, users should use the significantly higher iteration counts specified in @pl:20161. We have processed the contact matrix to remove loci with zero interactions. The bias matrix is not used.
-
-```{r, results = 'hide', message = FALSE}
-data(Lieberman_breaks)
-data(Lieberman_contact)
-
-control_trex <- list(
-  iter = c(10, 10, 10, 10, 10),
-  block_size = c(10, 10, 10, 10, 10),
-  max_cycle = 1
-)
-
-start_time <- proc.time()
-CutRes = Cut(contact = Lieberman_contact,
-            breaks = Lieberman_breaks,
-            NumOverlap = 1, 
-            CPU = 1,
-            mcmc = 10,
-            burn = 10,
-            thinning = 1,
-            target.accept = 0.95,
-            tuning_control = control_trex)
-
-PasteRes = Paste(contact = Lieberman_contact, 
-                cutresult = CutRes, 
-                Nrep=1,
-                T=10,
-                CPU = 1,
-                NN=10)
-
-end_time <- proc.time()
-```
-
-The above code took `r (end_time-start_time)[3]` seconds to execute. Alternatively, one can run `CutAndPaste` in one command:
-```{r, eval = FALSE}
-CAPRes = CutAndPaste(contact = Lieberman_breaks,
-            breaks = Lieberman_contact,
-            NumOverlap = 1,
-            CPU = 1,
-            mcmc = 1000,
-            burn = 1000,
-            thinning = 1,
-            target.accept = 0.95,
-            tuning_control = control_trex)
-```
-
-## Results
-```{r}
-head(PasteRes)
-```
-
 # Simulation
-For users who are interested in reproducing the simulation results in @pl:20161, the following simulation function and script will lead to the reproduction of the same data sets. 
+For users who are interested in reproducing the simulation results in @park:2026, the following simulation function and script will lead to the reproduction of the same data sets. 
 
 For a known structure `S`, we provided the `simulate_contact` function to simulate the data based on either Poisson or negative binomial distrubtion . Arguments for `simulate_contact` include `pi` for zero inflation percentage, `p` for overdispersion paramter for negative binomial distribution, and `random` for the presence of random effect. 
 
@@ -219,7 +167,7 @@ S <- lieberman[c(1:500, (N - 499):N),]
 head(S)
 ```
 
-Below is the script we used for simulation. With the provided seed, the simulated data should be identical to those in @pl:20161. 
+Below is the script we used for simulation. With the provided seed, the simulated data should be identical to those in @park:2026. 
 ```{r, eval = FALSE}
 require(VGAM)
 require(reticulate)
