@@ -1,6 +1,7 @@
 ---
 title: "tRexCAP: A Divide and Conquer Strategy for Recapitulating Whole Genome 3D Structure Using Hi-C Data"
 output: rmarkdown::html_vignette
+date: "`r Sys.Date()`"
 vignette: >
   %\VignetteIndexEntry{tRexCAP: A Divide and Conquer Strategy for Recapitulating Whole Genome 3D Structure Using Hi-C Data}
   %\VignetteEngine{knitr::rmarkdown}
