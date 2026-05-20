@@ -96,6 +96,9 @@ The `Paste` function combines structures obtained in `Cut` step through isometri
 * contact: The same contact matrix used in `Cut`.
 * cutresult: The result from a Cut() call.
 * CPU:  Integer specifying the number of cores for parallel MCMC execution. The default value is 1.
+* Nrep: Number of independent start for APG algorithm. The default value is 50.
+* T: Maximum number of APG iterations. The default value is 500.
+* NN: Number of interations of Monte Carlo fallback should APG fails to converge. The default value is 50000.
 
 ## Output
 `Paste` returns an n by 3 matrix of the estimated coordinates.
@@ -106,6 +109,7 @@ Here we provide an example for tRex-CAP. For illustration simplicity, we use the
 To fully reproduce the results in @park:2026, please read the "Simulation" section on how to simulate the exact datasets used in our simulation studies. The Lymphoblastoid data used in our analysis, Lieberman_breaks and Lieberman_contact, are also provided for reproducing our result.
 ```{r, results = 'hide', message = FALSE}
 example_data_short <- example_data[1:100, 1:100]
+start_time <- proc.time()
 CutRes <- Cut(
             contact = example_data_short, 
             block_size = 25, 
@@ -117,17 +121,24 @@ CutRes <- Cut(
             target.accept = 0.95,
             tuning_control = control_trex
           )
+end_time <- proc.time()
 ```
 
-On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took 14.7 seconds to execute the command above.
+On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took `r (end_time - start_time)[3]` seconds to execute the command above.
 
 To paste the results, run the following script:
 ```{r, results = 'hide', message = FALSE}
+start_time <- proc.time()
 PasteRes <- Paste(
               contact = example_data_short,  
               cutresult = CutRes, 
-              CPU = 1
+              CPU = 1,
+              Nrep = 10, 
+              T = 50,
+              NN = 500
             )
+end_time <- proc.time()
+```
 ```
 
 The result is an n by 3 matrix.
@@ -135,14 +146,14 @@ The result is an n by 3 matrix.
 head(PasteRes)
 ```
 
-On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took 23.8 seconds to execute the command above.
+On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took `r (end_time - start_time)[3]` seconds to execute the command above.
 
 # The CutAndPaste Function
 We also wrapped `Cut` and `Paste` into a single function call, `CutAndPaste`. The arguments for `CutAndPaste` are the same as `Cut`. It runs `Cut` and then `Paste` sequentially, and returns the n by 3 coordinates matrix.
 
 ```{r, eval=FALSE}
 CAPRes <- CutAndPaste(
-            contact = sim_hic,
+            contact = example_data_short,
             block_size = 25,
             NumOverlap = 1,
             CPU = 1,
@@ -150,7 +161,10 @@ CAPRes <- CutAndPaste(
             burn = 1000,
             thinning = 1,
             target.accept = 0.95,
-            tuning_control = control_trex)
+            tuning_control = control_trex,
+            Nrep = 10, 
+            T = 50,
+            NN = 500)
 ```
 
 # Visualization

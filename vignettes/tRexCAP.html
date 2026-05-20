@@ -499,6 +499,11 @@ other parameters intended for <code>Paste</code>.</p>
 <li>cutresult: The result from a Cut() call.</li>
 <li>CPU: Integer specifying the number of cores for parallel MCMC
 execution. The default value is 1.</li>
+<li>Nrep: Number of independent start for APG algorithm. The default
+value is 50.</li>
+<li>T: Maximum number of APG iterations. The default value is 500.</li>
+<li>NN: Number of interations of Monte Carlo fallback should APG fails
+to converge. The default value is 50000.</li>
 </ul>
 </div>
 <div id="output-1" class="section level2">
@@ -518,36 +523,46 @@ the exact datasets used in our simulation studies. The Lymphoblastoid
 data used in our analysis, Lieberman_breaks and Lieberman_contact, are
 also provided for reproducing our result.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>example_data_short <span class="ot">&lt;-</span> example_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>]</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>CutRes <span class="ot">&lt;-</span> <span class="fu">Cut</span>(</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>            <span class="at">contact =</span> example_data_short, </span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>            <span class="at">block_size =</span> <span class="dv">25</span>, </span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>            <span class="at">NumOverlap =</span> <span class="dv">1</span>, </span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>            <span class="at">CPU =</span> <span class="dv">1</span>,</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>            <span class="at">mcmc =</span> <span class="dv">1000</span>,</span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>            <span class="at">burn =</span> <span class="dv">1000</span>,</span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>            <span class="at">thinning =</span> <span class="dv">1</span>,</span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>            <span class="at">target.accept =</span> <span class="fl">0.95</span>,</span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>            <span class="at">tuning_control =</span> control_trex</span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>          )</span></code></pre></div>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>start_time <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>CutRes <span class="ot">&lt;-</span> <span class="fu">Cut</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>            <span class="at">contact =</span> example_data_short, </span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>            <span class="at">block_size =</span> <span class="dv">25</span>, </span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>            <span class="at">NumOverlap =</span> <span class="dv">1</span>, </span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>            <span class="at">CPU =</span> <span class="dv">1</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>            <span class="at">mcmc =</span> <span class="dv">1000</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>            <span class="at">burn =</span> <span class="dv">1000</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>            <span class="at">thinning =</span> <span class="dv">1</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>            <span class="at">target.accept =</span> <span class="fl">0.95</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>            <span class="at">tuning_control =</span> control_trex</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>          )</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>end_time <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()</span></code></pre></div>
 <p>On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took
-14.7 seconds to execute the command above.</p>
+14.685 seconds to execute the command above.</p>
 <p>To paste the results, run the following script:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>PasteRes <span class="ot">&lt;-</span> <span class="fu">Paste</span>(</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>              <span class="at">contact =</span> example_data_short,  </span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>              <span class="at">cutresult =</span> CutRes, </span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>              <span class="at">CPU =</span> <span class="dv">1</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>            )</span></code></pre></div>
-<p>The result is an n by 3 matrix.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">head</span>(PasteRes)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]        [,3]</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360426 -1.509879  0.08949821</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.150009 -1.509879  0.54449531</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692263 -1.059224 -0.62561749</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.766016 -1.346114 -0.85185082</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.064038 -1.851955 -0.52181670</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.863047 -1.740711 -0.25521494</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>start_time <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>PasteRes <span class="ot">&lt;-</span> <span class="fu">Paste</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>              <span class="at">contact =</span> example_data_short,  </span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>              <span class="at">cutresult =</span> CutRes, </span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>              <span class="at">CPU =</span> <span class="dv">1</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>              <span class="at">Nrep =</span> <span class="dv">10</span>, </span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>              <span class="at">T =</span> <span class="dv">50</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>              <span class="at">NN =</span> <span class="dv">500</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>            )</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>end_time <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()</span></code></pre></div>
+<pre><code>
+The result is an n by 3 matrix.
+
+``` r
+head(PasteRes)
+#&gt;           [,1]      [,2]        [,3]
+#&gt; [1,] -2.361196 -1.509434  0.08923275
+#&gt; [2,] -3.150779 -1.509434  0.54422985
+#&gt; [3,] -3.693033 -1.058778 -0.62588295
+#&gt; [4,] -3.766786 -1.345669 -0.85211628
+#&gt; [5,] -4.064808 -1.851509 -0.52208216
+#&gt; [6,] -3.863816 -1.740265 -0.25548041</code></pre>
 <p>On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took
-23.8 seconds to execute the command above.</p>
+1.644 seconds to execute the command above.</p>
 </div>
 <div id="the-cutandpaste-function" class="section level1">
 <h1>The CutAndPaste Function</h1>
@@ -557,7 +572,7 @@ function call, <code>CutAndPaste</code>. The arguments for
 <code>Cut</code> and then <code>Paste</code> sequentially, and returns
 the n by 3 coordinates matrix.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>CAPRes <span class="ot">&lt;-</span> <span class="fu">CutAndPaste</span>(</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>            <span class="at">contact =</span> sim_hic,</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>            <span class="at">contact =</span> example_data_short,</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>            <span class="at">block_size =</span> <span class="dv">25</span>,</span>
 <span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>            <span class="at">NumOverlap =</span> <span class="dv">1</span>,</span>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>            <span class="at">CPU =</span> <span class="dv">1</span>,</span>
@@ -565,7 +580,10 @@ the n by 3 coordinates matrix.</p>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>            <span class="at">burn =</span> <span class="dv">1000</span>,</span>
 <span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>            <span class="at">thinning =</span> <span class="dv">1</span>,</span>
 <span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>            <span class="at">target.accept =</span> <span class="fl">0.95</span>,</span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>            <span class="at">tuning_control =</span> control_trex)</span></code></pre></div>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>            <span class="at">tuning_control =</span> control_trex,</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>            <span class="at">Nrep =</span> <span class="dv">10</span>, </span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>            <span class="at">T =</span> <span class="dv">50</span>,</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>            <span class="at">NN =</span> <span class="dv">500</span>)</span></code></pre></div>
 </div>
 <div id="visualization" class="section level1">
 <h1>Visualization</h1>
