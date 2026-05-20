@@ -1,0 +1,28 @@
+name: Deploy to trex-vignette
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'vignette/tRexCAP.html'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare index.html
+        run: |
+          mkdir -p deploy
+          cp vignette/tRexCAP.html deploy/index.html
+
+      - name: Deploy to trex-vignette
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.PAT_TOKEN }}
+          external_repository: mxw010/trex-vignette
+          publish_branch: main
+          publish_dir: deploy
+          keep_files: false
