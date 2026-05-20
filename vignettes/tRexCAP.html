@@ -457,8 +457,6 @@ e.</p></li>
 0.95.</p></li>
 <li><p>tuning_control: Tuning control for HMC. See below for
 details.</p></li>
-<li><p>method.type: The method for for reconstructing each block. One of
-tRex, tPAM and bn (Bayesian Nonparametric).</p></li>
 </ul>
 </div>
 <div id="tuning-control" class="section level2">
@@ -542,12 +540,12 @@ also provided for reproducing our result.</p>
 <p>The result is an n by 3 matrix.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">head</span>(PasteRes)</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]        [,3]</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360541 -1.509812  0.08946209</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.150124 -1.509812  0.54445919</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692378 -1.059157 -0.62565360</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.766131 -1.346048 -0.85188693</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.064153 -1.851888 -0.52185281</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.863162 -1.740644 -0.25525106</span></span></code></pre></div>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360582 -1.509790  0.08944022</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.150165 -1.509790  0.54443732</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692419 -1.059134 -0.62567547</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.766172 -1.346025 -0.85190880</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.064194 -1.851865 -0.52187468</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.863202 -1.740621 -0.25527293</span></span></code></pre></div>
 <p>On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took
 23.8 seconds to execute the command above.</p>
 </div>
