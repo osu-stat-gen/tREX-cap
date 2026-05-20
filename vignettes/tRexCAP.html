@@ -540,12 +540,12 @@ also provided for reproducing our result.</p>
 <p>The result is an n by 3 matrix.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">head</span>(PasteRes)</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]        [,3]</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360582 -1.509790  0.08944022</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.150165 -1.509790  0.54443732</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692419 -1.059134 -0.62567547</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.766172 -1.346025 -0.85190880</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.064194 -1.851865 -0.52187468</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.863202 -1.740621 -0.25527293</span></span></code></pre></div>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360426 -1.509879  0.08949821</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.150009 -1.509879  0.54449531</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692263 -1.059224 -0.62561749</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.766016 -1.346114 -0.85185082</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.064038 -1.851955 -0.52181670</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.863047 -1.740711 -0.25521494</span></span></code></pre></div>
 <p>On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took
 23.8 seconds to execute the command above.</p>
 </div>
@@ -560,7 +560,12 @@ the n by 3 coordinates matrix.</p>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>            <span class="at">contact =</span> sim_hic,</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>            <span class="at">block_size =</span> <span class="dv">25</span>,</span>
 <span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>            <span class="at">NumOverlap =</span> <span class="dv">1</span>,</span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>            <span class="at">CPU =</span> <span class="dv">5</span>)</span></code></pre></div>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>            <span class="at">CPU =</span> <span class="dv">1</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>            <span class="at">mcmc =</span> <span class="dv">1000</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>            <span class="at">burn =</span> <span class="dv">1000</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>            <span class="at">thinning =</span> <span class="dv">1</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>            <span class="at">target.accept =</span> <span class="fl">0.95</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>            <span class="at">tuning_control =</span> control_trex)</span></code></pre></div>
 </div>
 <div id="visualization" class="section level1">
 <h1>Visualization</h1>
@@ -657,7 +662,7 @@ Genome</span>.”</span> <em>Science</em> 326 (5950): 289–93. <a href="https:/
 <div id="ref-park:2026" class="csl-entry">
 Park, Jincheol, Meng Wang, Emerson Webb, Jin Victor, and Shili Lin.
 2026. <span>“A Divide and Conquer Strategy for Recapitulating Whole
-Genome 3D Structure Using Hi-c Data.”</span> <em>Biostatistics</em>.
+Genome 3D Structure Using Hi-c Data.”</span> <em>Manuscript</em>.
 </div>
 </div>
 </div>

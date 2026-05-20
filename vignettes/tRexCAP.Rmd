@@ -145,7 +145,12 @@ CAPRes <- CutAndPaste(
             contact = sim_hic,
             block_size = 25,
             NumOverlap = 1,
-            CPU = 5)
+            CPU = 1,
+            mcmc = 1000,
+            burn = 1000,
+            thinning = 1,
+            target.accept = 0.95,
+            tuning_control = control_trex)
 ```
 
 # Visualization
