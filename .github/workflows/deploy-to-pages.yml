@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - 'vignette/tRexCAP.html'
+    paths:
+      - 'vignettes/tRexCAP.html'
 
 jobs:
   deploy:
@@ -16,7 +16,7 @@ jobs:
       - name: Prepare index.html
         run: |
           mkdir -p deploy
-          cp vignette/tRexCAP.html deploy/index.html
+          cp vignettes/tRexCAP.html deploy/index.html
 
       - name: Deploy to trex-vignette
         uses: peaceiris/actions-gh-pages@v3
