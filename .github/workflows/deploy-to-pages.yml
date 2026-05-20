@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'vignette/tRexCAP.html'
+    # paths:
+    #   - 'vignette/tRexCAP.html'
 
 jobs:
   deploy:
