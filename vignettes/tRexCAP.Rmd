@@ -105,7 +105,7 @@ The `Paste` function combines structures obtained in `Cut` step through isometri
 # Example
 Here we provide an example for tRex-CAP. For illustration simplicity, we use the first 100 loci in our example dataset with no bias matrix.
 
-To fully reproduce the results in Park et al. (2026), please read the "Simulation" section on how to simulate the exact datasets used in our simulation studies. The Lymphoblastoid data used in our analysis, Lieberman_breaks and Lieberman_contact, are also provided for reproducing our result.
+To fully reproduce the results in @park:2026, please read the "Simulation" section on how to simulate the exact datasets used in our simulation studies. The Lymphoblastoid data used in our analysis, Lieberman_breaks and Lieberman_contact, are also provided for reproducing our result.
 ```{r, results = 'hide', message = FALSE}
 example_data_short <- example_data[1:100, 1:100]
 CutRes <- Cut(

@@ -514,11 +514,11 @@ coordinates.</p>
 <p>Here we provide an example for tRex-CAP. For illustration simplicity,
 we use the first 100 loci in our example dataset with no bias
 matrix.</p>
-<p>To fully reproduce the results in Park et al. (2026), please read the
-“Simulation” section on how to simulate the exact datasets used in our
-simulation studies. The Lymphoblastoid data used in our analysis,
-Lieberman_breaks and Lieberman_contact, are also provided for
-reproducing our result.</p>
+<p>To fully reproduce the results in <span class="citation">Park et al.
+(2026)</span>, please read the “Simulation” section on how to simulate
+the exact datasets used in our simulation studies. The Lymphoblastoid
+data used in our analysis, Lieberman_breaks and Lieberman_contact, are
+also provided for reproducing our result.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>example_data_short <span class="ot">&lt;-</span> example_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>]</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>CutRes <span class="ot">&lt;-</span> <span class="fu">Cut</span>(</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>            <span class="at">contact =</span> example_data_short, </span>
@@ -542,12 +542,12 @@ reproducing our result.</p>
 <p>The result is an n by 3 matrix.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">head</span>(PasteRes)</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]        [,3]</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360337 -1.509932  0.08950327</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.149920 -1.509932  0.54450037</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692175 -1.059277 -0.62561242</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.765927 -1.346167 -0.85184575</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.063950 -1.852007 -0.52181163</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.862958 -1.740764 -0.25520988</span></span></code></pre></div>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1,] -2.360541 -1.509812  0.08946209</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [2,] -3.150124 -1.509812  0.54445919</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [3,] -3.692378 -1.059157 -0.62565360</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [4,] -3.766131 -1.346048 -0.85188693</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [5,] -4.064153 -1.851888 -0.52185281</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [6,] -3.863162 -1.740644 -0.25525106</span></span></code></pre></div>
 <p>On the 3303MHz AMD EPYC 7R32 CPU, without parallelization it took
 23.8 seconds to execute the command above.</p>
 </div>
